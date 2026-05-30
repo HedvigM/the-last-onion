@@ -1,0 +1,10 @@
+{
+  "name": "the-last-onion-web",
+  "description": "Grocery list frontend for The Last Onion",
+  "formation": {
+    "web": {
+      "amount": 1,
+      "size": "S"
+    }
+  }
+}

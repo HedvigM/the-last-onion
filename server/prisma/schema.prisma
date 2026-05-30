@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum HouseholdRole {
+  owner
+  member
+}
+
+enum ListRole {
+  editor
+  viewer
+}
+
+enum InviteType {
+  household
+  list
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  householdMembers HouseholdMember[]
+  listMembers      ListMember[]
+  listsCreated     List[]              @relation("ListCreator")
+  invitesSent      Invite[]            @relation("InviteSender")
+
+  @@map("users")
+}
+
+model Household {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  members        HouseholdMember[]
+  lists          List[]
+  categories     Category[]
+  catalogItems   CatalogItem[]
+  usualItems     UsualItem[]
+  purchaseEvents PurchaseEvent[]
+  invites        Invite[]
+
+  @@map("households")
+}
+
+model HouseholdMember {
+  householdId String        @map("household_id")
+  userId      String        @map("user_id")
+  role        HouseholdRole @default(member)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([householdId, userId])
+  @@map("household_members")
+}
+
+model List {
+  id          String   @id @default(cuid())
+  householdId String   @map("household_id")
+  name        String
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  household      Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdBy      User            @relation("ListCreator", fields: [createdById], references: [id])
+  items          ListItem[]
+  members        ListMember[]
+  invites        Invite[]
+  purchaseEvents PurchaseEvent[]
+
+  @@map("lists")
+}
+
+model ListMember {
+  listId String   @map("list_id")
+  userId String   @map("user_id")
+  role   ListRole @default(editor)
+
+  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([listId, userId])
+  @@map("list_members")
+}
+
+model Category {
+  id          String @id @default(cuid())
+  householdId String @map("household_id")
+  name        String
+  sortOrder   Int    @default(0) @map("sort_order")
+
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  catalogItems CatalogItem[]
+
+  @@unique([householdId, name])
+  @@map("categories")
+}
+
+model CatalogItem {
+  id             String @id @default(cuid())
+  householdId    String @map("household_id")
+  normalizedName String @map("normalized_name")
+  displayName    String @map("display_name")
+  categoryId     String @map("category_id")
+
+  household      Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category       Category        @relation(fields: [categoryId], references: [id])
+  listItems      ListItem[]
+  usualItems     UsualItem[]
+  purchaseEvents PurchaseEvent[]
+
+  @@unique([householdId, normalizedName])
+  @@map("catalog_items")
+}
+
+model ListItem {
+  id            String    @id @default(cuid())
+  listId        String    @map("list_id")
+  catalogItemId String    @map("catalog_item_id")
+  checked       Boolean   @default(false)
+  checkedAt     DateTime? @map("checked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  list        List        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  catalogItem CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, catalogItemId])
+  @@map("list_items")
+}
+
+model UsualItem {
+  householdId   String  @map("household_id")
+  catalogItemId String  @map("catalog_item_id")
+  isManual      Boolean @default(true) @map("is_manual")
+
+  household   Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  catalogItem CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
+
+  @@id([householdId, catalogItemId])
+  @@map("usual_items")
+}
+
+model PurchaseEvent {
+  id            String   @id @default(cuid())
+  householdId   String   @map("household_id")
+  catalogItemId String   @map("catalog_item_id")
+  listId        String   @map("list_id")
+  purchasedAt   DateTime @default(now()) @map("purchased_at")
+
+  household   Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  catalogItem CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
+  list        List        @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@index([householdId, purchasedAt])
+  @@map("purchase_events")
+}
+
+model Invite {
+  id          String     @id @default(cuid())
+  token       String     @unique @default(cuid())
+  type        InviteType
+  email       String
+  householdId String?    @map("household_id")
+  listId      String?    @map("list_id")
+  invitedById String     @map("invited_by_id")
+  expiresAt   DateTime   @map("expires_at")
+  acceptedAt  DateTime?  @map("accepted_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  household Household? @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  list      List?      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  invitedBy User       @relation("InviteSender", fields: [invitedById], references: [id])
+
+  @@map("invites")
+}

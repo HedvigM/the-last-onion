@@ -1,0 +1,13 @@
+{
+  "name": "the-last-onion-api",
+  "description": "Grocery list API for The Last Onion",
+  "formation": {
+    "web": {
+      "amount": 1,
+      "size": "S"
+    }
+  },
+  "scripts": {
+    "postdeploy": "npm run db:migrate:deploy"
+  }
+}
