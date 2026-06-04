@@ -1,0 +1,302 @@
+/* Marketing pages — editorial / whimsical, project greens */
+
+.marketing {
+  --m-serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --m-script: 'Caveat', 'Segoe Script', cursive;
+  --m-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --m-cream: #f7f4ed;
+  --m-green-50: #e8f5ee;
+  --m-green-100: #d4e8dc;
+  --m-green-dark: #1b4332;
+  --m-green-mid: #2d6a4f;
+  --m-green-light: #40916c;
+  --m-border-strong: #b7cfc0;
+
+  min-height: 100vh;
+  background: var(--m-cream);
+  font-family: var(--m-sans);
+  color: var(--text);
+}
+
+.marketing .font-serif {
+  font-family: var(--m-serif);
+  font-weight: 400;
+}
+
+.marketing .font-script {
+  font-family: var(--m-script);
+  font-weight: 600;
+}
+
+/* ——— Nav (dark green bar) ——— */
+.marketing .m-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 1.5rem;
+  padding-top: calc(0.65rem + env(safe-area-inset-top, 0px));
+  background: var(--m-green-dark);
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.marketing .m-brand {
+  font-family: var(--m-serif);
+  font-size: 1rem;
+  text-decoration: none;
+  color: #fff;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+.marketing .m-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.marketing .m-nav-link {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.marketing .m-nav-link:hover,
+.marketing .m-nav-link.router-link-active {
+  color: #fff;
+}
+
+.marketing .m-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.marketing .m-btn:hover {
+  transform: translateY(-1px);
+}
+
+.marketing .m-btn-primary {
+  background: #fff;
+  color: var(--m-green-dark);
+}
+
+.marketing .m-btn-primary--green {
+  background: var(--m-green-mid);
+  color: #fff;
+}
+
+.marketing .m-btn-secondary {
+  background: transparent;
+  color: var(--m-green-dark);
+  border: 1.5px solid var(--m-green-dark);
+}
+
+.marketing .m-btn-secondary--light {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+}
+
+.marketing .m-btn-sm {
+  padding: 0.45rem 1rem;
+}
+
+.marketing .m-card {
+  background: var(--m-cream);
+  border: 1.5px solid var(--m-green-dark);
+  border-radius: 12px;
+}
+
+.marketing .m-card-soft {
+  background: var(--m-green-50);
+  border: 1.5px solid var(--m-border-strong);
+  border-radius: 12px;
+}
+
+/* ——— Ribbon band ——— */
+.marketing .m-ribbon {
+  background: var(--m-green-mid);
+  color: #fff;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.marketing .m-ribbon-inner {
+  max-width: 56rem;
+  margin: 0 auto;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .marketing .m-ribbon {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  .marketing .m-ribbon-inner {
+    padding: 0 1rem;
+  }
+}
+
+/* ——— Footer ——— */
+.marketing .m-footer-wrap {
+  background: var(--m-green-50);
+  border-top: 1.5px solid var(--m-border-strong);
+}
+
+.marketing .m-footer-hero {
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  background: var(--m-green-100);
+}
+
+.marketing .m-footer-hero h2 {
+  margin: 0;
+  font-family: var(--m-serif);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  color: var(--m-green-dark);
+  line-height: 1.15;
+}
+
+.marketing .m-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.marketing .m-footer-col h3 {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--m-green-mid);
+  margin: 0 0 0.75rem;
+}
+
+.marketing .m-footer-col p,
+.marketing .m-footer-col a {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-decoration: none;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.marketing .m-footer-col a:hover {
+  color: var(--m-green-mid);
+}
+
+.marketing .m-footer-logo {
+  font-family: var(--m-serif);
+  font-size: 1.25rem;
+  color: var(--m-green-dark);
+  text-decoration: none;
+}
+
+.marketing .m-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.marketing .m-wavy {
+  display: block;
+  width: 100%;
+  height: 12px;
+  color: var(--m-green-mid);
+}
+
+/* ——— Shared section helpers ——— */
+.marketing .section-title {
+  font-family: var(--m-serif);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  text-align: center;
+  margin: 0 0 0.35rem;
+  color: var(--m-green-dark);
+}
+
+.marketing .section-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin: 0 0 2rem;
+}
+
+.marketing .tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.marketing .tag {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--m-green-mid);
+}
+
+@media (min-width: 640px) {
+  .marketing .m-footer-grid {
+    grid-template-columns: 1.2fr repeat(3, 1fr);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .marketing {
+    --m-cream: #1a1d21;
+    --m-green-50: #1a2e24;
+    --m-green-100: #243830;
+    --m-border-strong: #3a4a42;
+  }
+
+  .marketing .m-nav {
+    background: #0f1f18;
+  }
+
+  .marketing .m-card {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing .m-btn:hover {
+    transform: none;
+  }
+}

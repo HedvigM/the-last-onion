@@ -11,8 +11,14 @@ const { isOnline } = useOffline()
 const showUpdatePrompt = ref(false)
 
 const showNav = computed(
-  () => auth.isAuthenticated && !route.meta.guest && route.name !== 'list-detail',
+  () =>
+    auth.isAuthenticated &&
+    !route.meta.guest &&
+    !route.meta.marketing &&
+    route.name !== 'list-detail',
 )
+
+const isMarketing = computed(() => !!route.meta.marketing)
 
 function onNeedRefresh() {
   showUpdatePrompt.value = true
@@ -51,7 +57,7 @@ onUnmounted(() => {
         <RouterLink to="/settings">Settings</RouterLink>
       </div>
     </nav>
-    <main class="app-main">
+    <main class="app-main" :class="{ 'app-main--flush': isMarketing }">
       <RouterView />
     </main>
   </div>
@@ -143,5 +149,10 @@ onUnmounted(() => {
   padding-right: calc(1rem + env(safe-area-inset-right, 0px));
   padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   min-height: calc(100vh - 52px);
+}
+
+.app-main--flush {
+  padding: 0;
+  min-height: 100vh;
 }
 </style>

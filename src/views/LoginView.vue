@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const isRegister = ref(false)
 const email = ref('')
@@ -29,6 +30,12 @@ async function submit() {
     /* error shown via store */
   }
 }
+
+onMounted(() => {
+  if (route.query.register === '1') {
+    isRegister.value = true
+  }
+})
 </script>
 
 <template>
