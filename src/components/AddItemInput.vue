@@ -32,6 +32,9 @@ function submit() {
   display: flex;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+  padding-right: calc(1rem + env(safe-area-inset-right, 0px));
   background: var(--surface);
   border-top: 1px solid var(--border);
   position: sticky;

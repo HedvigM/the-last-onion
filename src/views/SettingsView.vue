@@ -2,11 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { usePwaInstall } from '@/composables/usePwaInstall'
 import { api } from '@/api/client'
 import type { HouseholdDetail } from '@/types'
 
 const auth = useAuthStore()
 const router = useRouter()
+const { canInstall, isIos, install } = usePwaInstall()
 
 const households = ref<HouseholdDetail[]>([])
 const inviteEmail = ref('')
@@ -69,6 +71,22 @@ async function copyLink() {
     <section class="section links">
       <RouterLink to="/settings/categories">Edit categories</RouterLink>
       <RouterLink to="/settings/usual-items">Edit usual items</RouterLink>
+    </section>
+
+    <section class="section">
+      <h3>Install app</h3>
+      <p v-if="canInstall" class="install-hint">
+        Add The Last Onion to your home screen for quick access while shopping.
+      </p>
+      <p v-else-if="isIos" class="install-hint">
+        Tap Share, then "Add to Home Screen" in Safari.
+      </p>
+      <p v-else class="install-hint">
+        Open this site in Chrome on your phone and use "Add to Home Screen" or "Install app".
+      </p>
+      <button v-if="canInstall" type="button" class="install-btn" @click="install">
+        Install app
+      </button>
     </section>
 
     <section v-if="auth.households.length > 1" class="section">
@@ -145,6 +163,7 @@ form input {
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 8px;
+  font-size: 16px;
 }
 
 form button {
@@ -211,5 +230,22 @@ form button {
   border-radius: 8px;
   cursor: pointer;
   margin-top: 1rem;
+}
+
+.install-hint {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.install-btn {
+  padding: 0.75rem 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
 }
 </style>

@@ -27,7 +27,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers['Content-Type'] = 'application/json'
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+  } catch (e) {
+    if (e instanceof TypeError) {
+      throw new ApiError('No internet connection', 0)
+    }
+    throw e
+  }
   const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {

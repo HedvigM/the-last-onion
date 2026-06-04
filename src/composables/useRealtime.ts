@@ -18,6 +18,14 @@ export function useRealtime(listId: Ref<string | undefined>) {
     socket = io(SOCKET_URL, { auth: { token } })
     socket.emit('join_list', id)
 
+    let hadConnected = false
+    socket.on('connect', () => {
+      if (hadConnected) {
+        listsStore.fetchList(id)
+      }
+      hadConnected = true
+    })
+
     socket.on('item_added', (data: ListItem) => {
       listsStore.handleSocketEvent('item_added', data)
     })
