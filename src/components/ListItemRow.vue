@@ -90,12 +90,12 @@ const emit = defineEmits<{
 }
 
 .category-select {
-  font-size: 0.75rem;
+  font-size: 16px;
   padding: 0.25rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg);
-  max-width: 7rem;
+  max-width: 9rem;
 }
 
 .btn-icon {

@@ -125,6 +125,7 @@ h2 {
   border: 1px solid var(--border);
   border-radius: 8px;
   box-sizing: border-box;
+  font-size: 16px;
 }
 
 .btn-primary,
