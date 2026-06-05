@@ -36,7 +36,7 @@ function submit() {
   padding-left: calc(1rem + env(safe-area-inset-left, 0px));
   padding-right: calc(1rem + env(safe-area-inset-right, 0px));
   background: var(--surface);
-  border-top: 1px solid var(--border);
+  /* border-top: 1px solid var(--border); */
   position: sticky;
   bottom: 0;
 }

@@ -13,7 +13,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section v-if="items.length" class="checked-section">
+  <section v-if="items.length">
     <h3 class="section-title">Checked off</h3>
     <ListItemRow
       v-for="item in items"
@@ -26,18 +26,15 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-.checked-section {
-  margin-top: 1.5rem;
-  border-top: 2px solid var(--border);
-}
-
 .section-title {
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  padding: 1rem 1rem 0.25rem;
+  border: 2px solid var(--secondary);
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0.75rem 1rem 0.25rem;
   margin: 0;
 }
 </style>

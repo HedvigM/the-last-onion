@@ -20,7 +20,7 @@ const { getCategoryLabel } = useCategoryLabel()
 </script>
 
 <template>
-  <section class="category-section">
+  <section>
     <h3 class="category-title">{{ getCategoryLabel(category) }}</h3>
     <ListItemRow
       v-for="item in items"
@@ -35,21 +35,15 @@ const { getCategoryLabel } = useCategoryLabel()
 </template>
 
 <style scoped>
-.category-section {
-  margin-bottom: 0.5rem;
-}
-
 .category-title {
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted);
+  color: var(--text);
   padding: 0.75rem 1rem 0.25rem;
   margin: 0;
-  background: var(--bg);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  background: var(--secondary);
+  border-radius: 0.5rem 0.5rem 0 0;
 }
 </style>

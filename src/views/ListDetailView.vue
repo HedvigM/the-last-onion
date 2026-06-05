@@ -148,9 +148,10 @@ h1 {
 .items-container {
   flex: 1;
   overflow-y: auto;
-  border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .loading,
