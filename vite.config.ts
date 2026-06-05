@@ -22,7 +22,7 @@ export default defineConfig({
         theme_color: '#2d6a4f',
         background_color: '#f8f9fa',
         display: 'standalone',
-        start_url: '/lists',
+        start_url: '/',
         scope: '/',
         icons: [
           {
@@ -44,16 +44,23 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
+        navigateFallbackAllowlist: [/^\/(?!api).*/],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith('/auth') ||
-              url.pathname.includes('/households') ||
-              url.pathname.includes('/lists') ||
-              url.pathname.includes('/categories') ||
-              url.pathname.includes('/usual') ||
-              url.pathname.includes('/invites'),
+            urlPattern: ({ url }) => {
+              const apiOrigin = new URL(process.env.VITE_API_URL ?? 'http://localhost:3001').origin
+              if (url.origin !== apiOrigin) return false
+              return (
+                url.pathname.startsWith('/auth') ||
+                url.pathname.includes('/households') ||
+                url.pathname.includes('/lists') ||
+                url.pathname.includes('/categories') ||
+                url.pathname.includes('/usual') ||
+                url.pathname.includes('/invites')
+              )
+            },
             handler: 'NetworkOnly',
           },
         ],
