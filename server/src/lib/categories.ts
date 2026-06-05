@@ -1,19 +1,34 @@
-export const DEFAULT_CATEGORIES = [
-  'Vegetables',
-  'Fruits',
-  'Dairy',
-  'Meat & Fish',
-  'Baking',
-  'Pantry',
-  'Frozen',
-  'Beverages',
-  'Household',
-  'Other',
+export const DEFAULT_CATEGORY_KEYS = [
+  'vegetables',
+  'fruits',
+  'dairy',
+  'meat_fish',
+  'baking',
+  'pantry',
+  'frozen',
+  'beverages',
+  'household',
+  'other',
 ] as const
 
-/** Keyword → category name mapping for auto-assignment. */
-export const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  Vegetables: [
+export type CategoryKey = (typeof DEFAULT_CATEGORY_KEYS)[number]
+
+export const CATEGORY_KEY_LABELS: Record<CategoryKey, string> = {
+  vegetables: 'Vegetables',
+  fruits: 'Fruits',
+  dairy: 'Dairy',
+  meat_fish: 'Meat & Fish',
+  baking: 'Baking',
+  pantry: 'Pantry',
+  frozen: 'Frozen',
+  beverages: 'Beverages',
+  household: 'Household',
+  other: 'Other',
+}
+
+/** Keyword → category key mapping for auto-assignment. */
+export const CATEGORY_KEYWORDS: Record<CategoryKey, string[]> = {
+  vegetables: [
     'carrot',
     'onion',
     'potato',
@@ -31,7 +46,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'kale',
     'avocado',
   ],
-  Fruits: [
+  fruits: [
     'apple',
     'banana',
     'orange',
@@ -47,7 +62,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'peach',
     'pineapple',
   ],
-  Dairy: [
+  dairy: [
     'milk',
     'cheese',
     'butter',
@@ -59,7 +74,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'cheddar',
     'parmesan',
   ],
-  'Meat & Fish': [
+  meat_fish: [
     'chicken',
     'beef',
     'pork',
@@ -73,7 +88,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'shrimp',
     'tuna',
   ],
-  Baking: [
+  baking: [
     'flour',
     'sugar',
     'yeast',
@@ -84,7 +99,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'icing',
     'sprinkle',
   ],
-  Pantry: [
+  pantry: [
     'rice',
     'pasta',
     'oil',
@@ -105,8 +120,8 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'can',
     'soup',
   ],
-  Frozen: ['frozen', 'ice cream', 'pizza'],
-  Beverages: [
+  frozen: ['frozen', 'ice cream', 'pizza'],
+  beverages: [
     'water',
     'juice',
     'coffee',
@@ -117,7 +132,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'drink',
     'lemonade',
   ],
-  Household: [
+  household: [
     'soap',
     'shampoo',
     'detergent',
@@ -129,17 +144,33 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'sponge',
     'cleaner',
   ],
+  other: [],
 }
 
-export function guessCategoryName(itemName: string): string {
+export function guessCategoryKey(itemName: string): CategoryKey {
   const normalized = itemName.toLowerCase()
-  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+  for (const [key, keywords] of Object.entries(CATEGORY_KEYWORDS) as [CategoryKey, string[]][]) {
+    if (key === 'other') continue
     if (keywords.some((kw) => normalized.includes(kw))) {
-      return category
+      return key
     }
   }
-  return 'Other'
+  return 'other'
 }
 
 export const USUAL_ITEM_THRESHOLD = 3
 export const USUAL_ITEM_WINDOW_DAYS = 28
+
+export function formatCategory(category: {
+  id: string
+  key: string | null
+  name: string
+  sortOrder: number
+}) {
+  return {
+    id: category.id,
+    key: category.key,
+    name: category.name,
+    sortOrder: category.sortOrder,
+  }
+}

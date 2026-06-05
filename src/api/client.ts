@@ -71,6 +71,13 @@ export const api = {
     )
   },
 
+  updateLanguage(language: import('@/types').AppLanguage) {
+    return request<{ user: import('@/types').User }>('/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ language }),
+    })
+  },
+
   getHouseholds() {
     return request<import('@/types').HouseholdDetail[]>('/households')
   },

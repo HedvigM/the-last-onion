@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify'
+import { ZodError } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AccessError } from '../lib/access.js'
 
@@ -28,8 +29,14 @@ export function handleError(error: unknown): { statusCode: number; message: stri
   if (error instanceof AccessError) {
     return { statusCode: error.statusCode, message: error.message }
   }
-  if (error instanceof Error && 'issues' in error) {
-    return { statusCode: 400, message: 'Validation error' }
+  if (error instanceof ZodError) {
+    const message = error.issues
+      .map((issue) => {
+        const field = issue.path.length ? issue.path.join('.') : 'body'
+        return `${field}: ${issue.message}`
+      })
+      .join(', ')
+    return { statusCode: 400, message: message || 'Validation error' }
   }
   console.error(error)
   return { statusCode: 500, message: 'Internal server error' }

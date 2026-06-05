@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api, setToken, getToken } from '@/api/client'
-import type { User, Household } from '@/types'
+import { setAppLocale } from '@/i18n'
+import type { AppLanguage, User, Household } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -15,6 +16,10 @@ export const useAuthStore = defineStore('auth', () => {
     () => households.value.find((h) => h.id === activeHouseholdId.value) ?? households.value[0] ?? null,
   )
 
+  function applyUserLanguage(language: AppLanguage) {
+    setAppLocale(language)
+  }
+
   function setActiveHousehold(id: string) {
     activeHouseholdId.value = id
     localStorage.setItem('activeHouseholdId', id)
@@ -25,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     password: string
     displayName: string
     householdName?: string
+    language?: AppLanguage
   }) {
     loading.value = true
     error.value = null
@@ -34,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = res.user
       households.value = [res.household]
       setActiveHousehold(res.household.id)
+      applyUserLanguage(res.user.language)
       return res
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Registration failed'
@@ -50,6 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await api.login({ email, password })
       setToken(res.token)
       user.value = res.user
+      applyUserLanguage(res.user.language)
       await fetchMe()
       return res
     } catch (e) {
@@ -67,6 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
       const res = await api.me()
       user.value = res.user
       households.value = res.households
+      applyUserLanguage(res.user.language)
       if (households.value.length && !activeHouseholdId.value) {
         setActiveHousehold(households.value[0]!.id)
       }
@@ -77,12 +86,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateLanguage(language: AppLanguage) {
+    const res = await api.updateLanguage(language)
+    user.value = res.user
+    applyUserLanguage(res.user.language)
+  }
+
   function logout() {
     setToken(null)
     user.value = null
     households.value = []
     activeHouseholdId.value = null
     localStorage.removeItem('activeHouseholdId')
+    applyUserLanguage('en')
   }
 
   async function acceptInvite(token: string) {
@@ -102,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     fetchMe,
+    updateLanguage,
     logout,
     acceptInvite,
   }

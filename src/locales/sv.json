@@ -1,0 +1,19 @@
+{
+  "categories": {
+    "vegetables": "Grönsaker",
+    "fruits": "Frukt",
+    "dairy": "Mejeri",
+    "meat_fish": "Kött & fisk",
+    "baking": "Bakning",
+    "pantry": "Skafferi",
+    "frozen": "Fryst",
+    "beverages": "Drycker",
+    "household": "Hushåll",
+    "other": "Övrigt"
+  },
+  "settings": {
+    "language": "Språk",
+    "languageEn": "Engelska",
+    "languageSv": "Svenska"
+  }
+}

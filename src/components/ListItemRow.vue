@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ListItem } from '@/types'
 import type { Category } from '@/types'
+import { useCategoryLabel } from '@/composables/useCategoryLabel'
 
 defineProps<{
   item: ListItem
@@ -12,6 +13,8 @@ const emit = defineEmits<{
   delete: []
   categoryChange: [categoryId: string]
 }>()
+
+const { getCategoryLabel } = useCategoryLabel()
 </script>
 
 <template>
@@ -32,7 +35,7 @@ const emit = defineEmits<{
         @change="emit('categoryChange', ($event.target as HTMLSelectElement).value)"
       >
         <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-          {{ cat.name }}
+          {{ getCategoryLabel(cat) }}
         </option>
       </select>
       <button type="button" class="btn-icon" aria-label="Delete" @click="emit('delete')">

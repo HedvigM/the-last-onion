@@ -1,5 +1,5 @@
 import type { PrismaClient } from '@prisma/client'
-import { guessCategoryName } from '../lib/categories.js'
+import { formatCategory, guessCategoryKey } from '../lib/categories.js'
 import { displayItemName, normalizeItemName } from '../lib/normalize.js'
 
 export async function findOrCreateCatalogItem(
@@ -19,13 +19,13 @@ export async function findOrCreateCatalogItem(
 
   let categoryId = categoryIdOverride
   if (!categoryId) {
-    const categoryName = guessCategoryName(rawName)
+    const categoryKey = guessCategoryKey(rawName)
     const category = await prisma.category.findFirst({
-      where: { householdId, name: categoryName },
+      where: { householdId, key: categoryKey },
     })
     if (!category) {
       const other = await prisma.category.findFirst({
-        where: { householdId, name: 'Other' },
+        where: { householdId, key: 'other' },
       })
       if (!other) throw new Error('No categories for household')
       categoryId = other.id
@@ -69,11 +69,7 @@ export function formatListItem(item: ListItemWithCatalog) {
       displayName: item.catalogItem.displayName,
       normalizedName: item.catalogItem.normalizedName,
       categoryId: item.catalogItem.categoryId,
-      category: {
-        id: item.catalogItem.category.id,
-        name: item.catalogItem.category.name,
-        sortOrder: item.catalogItem.category.sortOrder,
-      },
+      category: formatCategory(item.catalogItem.category),
     },
   }
 }

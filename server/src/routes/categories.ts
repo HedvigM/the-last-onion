@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { requireHouseholdAccess } from '../lib/access.js'
 import { authenticate, handleError } from '../lib/auth-helpers.js'
+import { formatCategory } from '../lib/categories.js'
 import { getOtherCategoryId } from '../lib/seed-categories.js'
 
 const createCategorySchema = z.object({ name: z.string().min(1) })
@@ -18,11 +19,7 @@ export async function categoryRoutes(app: FastifyInstance) {
         where: { householdId },
         orderBy: { sortOrder: 'asc' },
       })
-      return categories.map((c) => ({
-        id: c.id,
-        name: c.name,
-        sortOrder: c.sortOrder,
-      }))
+      return categories.map(formatCategory)
     } catch (error) {
       const { statusCode, message } = handleError(error)
       return reply.status(statusCode).send({ error: message })
@@ -47,7 +44,7 @@ export async function categoryRoutes(app: FastifyInstance) {
           sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
         },
       })
-      return { id: category.id, name: category.name, sortOrder: category.sortOrder }
+      return formatCategory(category)
     } catch (error) {
       const { statusCode, message } = handleError(error)
       return reply.status(statusCode).send({ error: message })
@@ -63,11 +60,15 @@ export async function categoryRoutes(app: FastifyInstance) {
       if (!existing) return reply.status(404).send({ error: 'Category not found' })
       await requireHouseholdAccess(prisma, request.userId, existing.householdId)
 
+      if (existing.key) {
+        return reply.status(400).send({ error: 'Cannot rename default categories' })
+      }
+
       const category = await prisma.category.update({
         where: { id: categoryId },
         data: { name: body.name },
       })
-      return { id: category.id, name: category.name, sortOrder: category.sortOrder }
+      return formatCategory(category)
     } catch (error) {
       const { statusCode, message } = handleError(error)
       return reply.status(statusCode).send({ error: message })
@@ -81,7 +82,7 @@ export async function categoryRoutes(app: FastifyInstance) {
       if (!existing) return reply.status(404).send({ error: 'Category not found' })
       await requireHouseholdAccess(prisma, request.userId, existing.householdId)
 
-      if (existing.name === 'Other') {
+      if (existing.key === 'other') {
         return reply.status(400).send({ error: 'Cannot delete the Other category' })
       }
 

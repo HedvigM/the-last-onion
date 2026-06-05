@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { api } from '@/api/client'
-import type { HouseholdDetail } from '@/types'
+import type { AppLanguage, HouseholdDetail } from '@/types'
 
 const auth = useAuthStore()
 const router = useRouter()
+const { t } = useI18n()
 const { canInstall, isIos, install } = usePwaInstall()
 
 const households = ref<HouseholdDetail[]>([])
 const inviteEmail = ref('')
 const inviteToken = ref<string | null>(null)
 const loading = ref(false)
+const languageLoading = ref(false)
 
 onMounted(async () => {
   households.value = await api.getHouseholds()
@@ -27,6 +30,16 @@ async function inviteMember() {
     inviteToken.value = res.token
   } finally {
     loading.value = false
+  }
+}
+
+async function setLanguage(language: AppLanguage) {
+  if (auth.user?.language === language) return
+  languageLoading.value = true
+  try {
+    await auth.updateLanguage(language)
+  } finally {
+    languageLoading.value = false
   }
 }
 
@@ -65,6 +78,30 @@ async function copyLink() {
       <div v-if="inviteToken" class="invite-box">
         <code>{{ inviteLink() }}</code>
         <button type="button" @click="copyLink">Copy</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h3>{{ t('settings.language') }}</h3>
+      <div class="language-options">
+        <button
+          type="button"
+          class="language-btn"
+          :class="{ active: auth.user?.language === 'en' }"
+          :disabled="languageLoading"
+          @click="setLanguage('en')"
+        >
+          {{ t('settings.languageEn') }}
+        </button>
+        <button
+          type="button"
+          class="language-btn"
+          :class="{ active: auth.user?.language === 'sv' }"
+          :disabled="languageLoading"
+          @click="setLanguage('sv')"
+        >
+          {{ t('settings.languageSv') }}
+        </button>
       </div>
     </section>
 
@@ -193,6 +230,31 @@ form button {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.language-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.language-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.language-btn.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+}
+
+.language-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .links a {

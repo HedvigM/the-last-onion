@@ -15,15 +15,23 @@ const householdName = ref('')
 
 async function submit() {
   try {
+    const trimmedEmail = email.value.trim()
+    const trimmedPassword = password.value
     if (isRegister.value) {
+      const trimmedName = displayName.value.trim()
+      const trimmedHousehold = householdName.value.trim()
+      if (!trimmedName) {
+        auth.error = 'Please enter your name'
+        return
+      }
       await auth.register({
-        email: email.value,
-        password: password.value,
-        displayName: displayName.value,
-        householdName: householdName.value || undefined,
+        email: trimmedEmail,
+        password: trimmedPassword,
+        displayName: trimmedName,
+        householdName: trimmedHousehold || undefined,
       })
     } else {
-      await auth.login(email.value, password.value)
+      await auth.login(trimmedEmail, trimmedPassword)
     }
     router.push('/lists')
   } catch {

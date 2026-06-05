@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { normalizeItemName, displayItemName } from '../normalize.js'
-import { guessCategoryName } from '../categories.js'
+import { guessCategoryKey } from '../categories.js'
 
 describe('normalizeItemName', () => {
   it('lowercases and trims', () => {
@@ -24,17 +24,17 @@ describe('displayItemName', () => {
   })
 })
 
-describe('guessCategoryName', () => {
+describe('guessCategoryKey', () => {
   it('assigns vegetables', () => {
-    expect(guessCategoryName('carrots')).toBe('Vegetables')
-    expect(guessCategoryName('onion')).toBe('Vegetables')
+    expect(guessCategoryKey('carrots')).toBe('vegetables')
+    expect(guessCategoryKey('onion')).toBe('vegetables')
   })
 
   it('assigns dairy', () => {
-    expect(guessCategoryName('milk')).toBe('Dairy')
+    expect(guessCategoryKey('milk')).toBe('dairy')
   })
 
-  it('falls back to Other', () => {
-    expect(guessCategoryName('xyzunknown')).toBe('Other')
+  it('falls back to other', () => {
+    expect(guessCategoryKey('xyzunknown')).toBe('other')
   })
 })

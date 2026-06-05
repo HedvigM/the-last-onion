@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCategoriesStore } from '@/stores/categories'
+import { useCategoryLabel } from '@/composables/useCategoryLabel'
 
 const auth = useAuthStore()
 const categoriesStore = useCategoriesStore()
+const { getCategoryLabel } = useCategoryLabel()
 
 const newItemName = ref('')
 
@@ -13,6 +15,13 @@ onMounted(async () => {
     await categoriesStore.fetchUsualItems(auth.activeHousehold.id)
   }
 })
+
+function usualItemCategoryLabel(item: {
+  categoryKey: string | null
+  categoryName: string
+}) {
+  return getCategoryLabel({ key: item.categoryKey, name: item.categoryName })
+}
 
 async function pinItem() {
   if (!auth.activeHousehold || !newItemName.value.trim()) return
@@ -44,7 +53,7 @@ async function unpin(catalogItemId: string) {
         <div class="item-info">
           <span class="name">{{ item.displayName }}</span>
           <span class="meta">
-            {{ item.categoryName }}
+            {{ usualItemCategoryLabel(item) }}
             ·
             <span v-if="item.isManual">Pinned</span>
             <span v-else>{{ item.purchaseCount }}× recently</span>

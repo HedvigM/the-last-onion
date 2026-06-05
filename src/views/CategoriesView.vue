@@ -2,9 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCategoriesStore } from '@/stores/categories'
+import { useCategoryLabel } from '@/composables/useCategoryLabel'
 
 const auth = useAuthStore()
 const categoriesStore = useCategoriesStore()
+const { getCategoryLabel } = useCategoryLabel()
 
 const newCategory = ref('')
 const editingId = ref<string | null>(null)
@@ -33,9 +35,8 @@ async function saveEdit() {
   editingId.value = null
 }
 
-async function deleteCategory(id: string, name: string) {
-  if (name === 'Other') return
-  if (confirm(`Delete "${name}"? Items will move to Other.`)) {
+async function deleteCategory(id: string, label: string) {
+  if (confirm(`Delete "${label}"? Items will move to Other.`)) {
     await categoriesStore.deleteCategory(id)
   }
 }
@@ -72,7 +73,7 @@ async function moveDown(index: number) {
           <button type="button" @click="saveEdit">Save</button>
         </template>
         <template v-else>
-          <span class="cat-name">{{ cat.name }}</span>
+          <span class="cat-name">{{ getCategoryLabel(cat) }}</span>
           <div class="actions">
             <button type="button" :disabled="index === 0" @click="moveUp(index)">↑</button>
             <button
@@ -82,12 +83,14 @@ async function moveDown(index: number) {
             >
               ↓
             </button>
-            <button type="button" @click="startEdit(cat.id, cat.name)">Edit</button>
+            <button v-if="!cat.key" type="button" @click="startEdit(cat.id, cat.name)">
+              Edit
+            </button>
             <button
-              v-if="cat.name !== 'Other'"
+              v-if="cat.key !== 'other'"
               type="button"
               class="danger"
-              @click="deleteCategory(cat.id, cat.name)"
+              @click="deleteCategory(cat.id, getCategoryLabel(cat))"
             >
               Delete
             </button>

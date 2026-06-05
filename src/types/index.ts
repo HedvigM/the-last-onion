@@ -2,7 +2,10 @@ export interface User {
   id: string
   email: string
   displayName: string
+  language: AppLanguage
 }
+
+export type AppLanguage = 'en' | 'sv'
 
 export interface Household {
   id: string
@@ -12,6 +15,7 @@ export interface Household {
 
 export interface Category {
   id: string
+  key: string | null
   name: string
   sortOrder: number
 }
@@ -44,6 +48,7 @@ export interface UsualItem {
   catalogItemId: string
   displayName: string
   categoryId: string
+  categoryKey: string | null
   categoryName: string
   isManual: boolean
   purchaseCount: number

@@ -4,8 +4,8 @@ import { useGroupedItems } from '@/composables/useGroupedItems'
 import type { Category, ListItem } from '@/types'
 
 const categories: Category[] = [
-  { id: 'cat-veg', name: 'Vegetables', sortOrder: 0 },
-  { id: 'cat-dairy', name: 'Dairy', sortOrder: 1 },
+  { id: 'cat-veg', key: 'vegetables', name: 'Vegetables', sortOrder: 0 },
+  { id: 'cat-dairy', key: 'dairy', name: 'Dairy', sortOrder: 1 },
 ]
 
 function makeItem(

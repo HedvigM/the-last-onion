@@ -22,6 +22,7 @@ export async function usualItemRoutes(app: FastifyInstance) {
         catalogItemId: item.catalogItem.id,
         displayName: item.catalogItem.displayName,
         categoryId: item.catalogItem.categoryId,
+        categoryKey: item.catalogItem.category.key,
         categoryName: item.catalogItem.category.name,
         isManual: item.isManual,
         purchaseCount: item.purchaseCount ?? 0,
@@ -63,6 +64,8 @@ export async function usualItemRoutes(app: FastifyInstance) {
       return {
         catalogItemId: catalogItem.id,
         displayName: catalogItem.displayName,
+        categoryId: catalogItem.categoryId,
+        categoryKey: catalogItem.category.key,
         categoryName: catalogItem.category.name,
         isManual: true,
       }

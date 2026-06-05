@@ -1,14 +1,15 @@
 import type { PrismaClient } from '@prisma/client'
-import { DEFAULT_CATEGORIES } from './categories.js'
+import { CATEGORY_KEY_LABELS, DEFAULT_CATEGORY_KEYS } from './categories.js'
 
 export async function seedDefaultCategories(
   prisma: PrismaClient,
   householdId: string,
 ): Promise<void> {
   await prisma.category.createMany({
-    data: DEFAULT_CATEGORIES.map((name, index) => ({
+    data: DEFAULT_CATEGORY_KEYS.map((key, index) => ({
       householdId,
-      name,
+      key,
+      name: CATEGORY_KEY_LABELS[key],
       sortOrder: index,
     })),
     skipDuplicates: true,
@@ -20,7 +21,7 @@ export async function getOtherCategoryId(
   householdId: string,
 ): Promise<string> {
   const other = await prisma.category.findFirst({
-    where: { householdId, name: 'Other' },
+    where: { householdId, key: 'other' },
   })
   if (!other) {
     throw new Error('Other category not found for household')

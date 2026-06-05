@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Category, ListItem } from '@/types'
+import { useCategoryLabel } from '@/composables/useCategoryLabel'
 import ListItemRow from './ListItemRow.vue'
 
 defineProps<{
@@ -14,11 +15,13 @@ const emit = defineEmits<{
   delete: [itemId: string]
   categoryChange: [itemId: string, categoryId: string]
 }>()
+
+const { getCategoryLabel } = useCategoryLabel()
 </script>
 
 <template>
   <section class="category-section">
-    <h3 class="category-title">{{ category.name }}</h3>
+    <h3 class="category-title">{{ getCategoryLabel(category) }}</h3>
     <ListItemRow
       v-for="item in items"
       :key="item.id"

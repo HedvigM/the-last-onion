@@ -1,0 +1,19 @@
+{
+  "categories": {
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "dairy": "Dairy",
+    "meat_fish": "Meat & Fish",
+    "baking": "Baking",
+    "pantry": "Pantry",
+    "frozen": "Frozen",
+    "beverages": "Beverages",
+    "household": "Household",
+    "other": "Other"
+  },
+  "settings": {
+    "language": "Language",
+    "languageEn": "English",
+    "languageSv": "Swedish"
+  }
+}
