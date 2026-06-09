@@ -42,18 +42,24 @@ export const useCategoriesStore = defineStore('categories', () => {
     )
   }
 
-  async function fetchUsualItems(householdId: string) {
-    usualItems.value = await api.getUsualItems(householdId)
+  async function fetchUsualItems(listId: string) {
+    usualItems.value = await api.getUsualItems(listId)
   }
 
-  async function pinUsualItem(householdId: string, name: string) {
-    const item = await api.pinUsualItem(householdId, { name })
-    await fetchUsualItems(householdId)
+  async function pinUsualItem(
+    listId: string,
+    input: { name?: string; catalogItemId?: string },
+  ) {
+    const payload = input.catalogItemId
+      ? { catalogItemId: input.catalogItemId }
+      : { name: (input.name ?? '').trim() }
+    const item = await api.pinUsualItem(listId, payload)
+    await fetchUsualItems(listId)
     return item
   }
 
-  async function unpinUsualItem(householdId: string, catalogItemId: string) {
-    await api.unpinUsualItem(householdId, catalogItemId)
+  async function unpinUsualItem(listId: string, catalogItemId: string) {
+    await api.unpinUsualItem(listId, catalogItemId)
     usualItems.value = usualItems.value.filter((i) => i.catalogItemId !== catalogItemId)
   }
 

@@ -1,19 +1,64 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useListsStore } from '@/stores/lists'
 import { useCategoriesStore } from '@/stores/categories'
 import { useCategoryLabel } from '@/composables/useCategoryLabel'
 
-const auth = useAuthStore()
+const route = useRoute()
+const listsStore = useListsStore()
 const categoriesStore = useCategoriesStore()
 const { getCategoryLabel } = useCategoryLabel()
 
-const newItemName = ref('')
+const listId = computed(() => route.params.id as string)
+const itemQuery = ref('')
+const selectedCatalogItemId = ref<string | null>(null)
+const showSuggestions = ref(false)
+
+const listName = computed(() => listsStore.currentList?.name ?? '…')
+
+const pinnedCatalogIds = computed(
+  () =>
+    new Set(
+      categoriesStore.usualItems.filter((i) => i.isManual).map((i) => i.catalogItemId),
+    ),
+)
+
+const listItemOptions = computed(() => {
+  const items = listsStore.currentList?.items ?? []
+  const seen = new Set<string>()
+  const options: {
+    catalogItemId: string
+    displayName: string
+    checked: boolean
+    alreadyPinned: boolean
+  }[] = []
+
+  for (const item of items) {
+    const catalogItemId = item.catalogItem.id
+    if (seen.has(catalogItemId)) continue
+    seen.add(catalogItemId)
+    options.push({
+      catalogItemId,
+      displayName: item.catalogItem.displayName,
+      checked: item.checked,
+      alreadyPinned: pinnedCatalogIds.value.has(catalogItemId),
+    })
+  }
+
+  return options.sort((a, b) => a.displayName.localeCompare(b.displayName))
+})
+
+const filteredOptions = computed(() => {
+  const available = listItemOptions.value.filter((o) => !o.alreadyPinned)
+  const q = itemQuery.value.trim().toLowerCase()
+  if (!q) return available
+  return available.filter((o) => o.displayName.toLowerCase().includes(q))
+})
 
 onMounted(async () => {
-  if (auth.activeHousehold) {
-    await categoriesStore.fetchUsualItems(auth.activeHousehold.id)
-  }
+  await listsStore.fetchList(listId.value)
+  await categoriesStore.fetchUsualItems(listId.value)
 })
 
 function usualItemCategoryLabel(item: {
@@ -23,30 +68,105 @@ function usualItemCategoryLabel(item: {
   return getCategoryLabel({ key: item.categoryKey, name: item.categoryName })
 }
 
+const pinError = ref<string | null>(null)
+
+function syncSelectionFromQuery() {
+  const trimmed = itemQuery.value.trim()
+  if (!trimmed) {
+    selectedCatalogItemId.value = null
+    return
+  }
+  const match = listItemOptions.value.find(
+    (o) =>
+      !o.alreadyPinned &&
+      o.displayName.toLowerCase() === trimmed.toLowerCase(),
+  )
+  selectedCatalogItemId.value = match?.catalogItemId ?? null
+}
+
+function onInput() {
+  syncSelectionFromQuery()
+  showSuggestions.value = true
+}
+
+function pickOption(opt: (typeof listItemOptions.value)[number]) {
+  if (opt.alreadyPinned) return
+  itemQuery.value = opt.displayName
+  selectedCatalogItemId.value = opt.catalogItemId
+  showSuggestions.value = false
+}
+
+function onBlur() {
+  window.setTimeout(() => {
+    showSuggestions.value = false
+  }, 150)
+}
+
 async function pinItem() {
-  if (!auth.activeHousehold || !newItemName.value.trim()) return
-  await categoriesStore.pinUsualItem(auth.activeHousehold.id, newItemName.value.trim())
-  newItemName.value = ''
+  const trimmed = itemQuery.value.trim()
+  if (!trimmed) return
+  pinError.value = null
+  syncSelectionFromQuery()
+
+  try {
+    await categoriesStore.pinUsualItem(
+      listId.value,
+      selectedCatalogItemId.value
+        ? { catalogItemId: selectedCatalogItemId.value }
+        : { name: trimmed },
+    )
+    itemQuery.value = ''
+    selectedCatalogItemId.value = null
+    showSuggestions.value = false
+  } catch (e) {
+    pinError.value = e instanceof Error ? e.message : 'Failed to pin item'
+  }
 }
 
 async function unpin(catalogItemId: string) {
-  if (!auth.activeHousehold) return
-  await categoriesStore.unpinUsualItem(auth.activeHousehold.id, catalogItemId)
+  await categoriesStore.unpinUsualItem(listId.value, catalogItemId)
 }
 </script>
 
 <template>
   <div class="usual-page">
     <h1>Usual items</h1>
+    <p class="list-name">for {{ listName }}</p>
     <p class="desc">
-      Items you buy often appear here automatically (3+ times in 28 days). You can also pin items
-      manually.
+      Items you buy often on this list appear here automatically (3+ times in 28 days). You can
+      also pin items manually.
     </p>
 
     <form class="add-form" @submit.prevent="pinItem">
-      <input v-model="newItemName" placeholder="Pin an item…" />
-      <button type="submit">Pin</button>
+      <div class="combobox">
+        <input
+          v-model="itemQuery"
+          type="text"
+          placeholder="Type or choose an item…"
+          autocomplete="off"
+          @input="onInput"
+          @focus="showSuggestions = true"
+          @blur="onBlur"
+        />
+        <ul
+          v-if="showSuggestions && filteredOptions.length"
+          class="suggestions"
+          role="listbox"
+        >
+          <li
+            v-for="opt in filteredOptions"
+            :key="opt.catalogItemId"
+            role="option"
+            @mousedown.prevent="pickOption(opt)"
+          >
+            <span class="suggestion-name">{{ opt.displayName }}</span>
+            <span v-if="opt.checked" class="suggestion-meta">crossed off</span>
+          </li>
+        </ul>
+      </div>
+      <button type="submit" :disabled="!itemQuery.trim()">Pin</button>
     </form>
+    <p v-if="pinError" class="error">{{ pinError }}</p>
 
     <ul v-if="categoriesStore.usualItems.length" class="usual-list">
       <li v-for="item in categoriesStore.usualItems" :key="item.catalogItemId">
@@ -70,9 +190,9 @@ async function unpin(catalogItemId: string) {
       </li>
     </ul>
 
-    <p v-else class="empty">No usual items yet. Shop a few times or pin items manually.</p>
+    <p v-else class="empty">No usual items yet. Shop this list a few times or pin items manually.</p>
 
-    <RouterLink to="/settings" class="back">← Back to settings</RouterLink>
+    <RouterLink :to="`/lists/${listId}`" class="back">← Back to list</RouterLink>
   </div>
 </template>
 
@@ -87,6 +207,12 @@ h1 {
   margin: 0 0 0.25rem;
 }
 
+.list-name {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
 .desc {
   color: var(--muted);
   font-size: 0.875rem;
@@ -99,12 +225,58 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
-.add-form input {
+.combobox {
+  position: relative;
   flex: 1;
+}
+
+.combobox input {
+  width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
+  box-sizing: border-box;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.suggestions li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+.suggestion-name {
+  font-size: 0.95rem;
+}
+
+.suggestion-meta {
+  font-size: 0.75rem;
+  color: var(--muted);
+  flex-shrink: 0;
 }
 
 .add-form button {
@@ -114,6 +286,12 @@ h1 {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  align-self: flex-start;
+}
+
+.add-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .usual-list {
@@ -156,6 +334,12 @@ h1 {
   color: var(--muted);
   text-align: center;
   padding: 2rem;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin: -0.75rem 0 1rem;
 }
 
 .back {

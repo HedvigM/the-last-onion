@@ -52,7 +52,6 @@ model Household {
   lists          List[]
   categories     Category[]
   catalogItems   CatalogItem[]
-  usualItems     UsualItem[]
   purchaseEvents PurchaseEvent[]
   invites        Invite[]
 
@@ -84,6 +83,7 @@ model List {
   members        ListMember[]
   invites        Invite[]
   purchaseEvents PurchaseEvent[]
+  usualItems     UsualItem[]
 
   @@map("lists")
 }
@@ -148,14 +148,14 @@ model ListItem {
 }
 
 model UsualItem {
-  householdId   String  @map("household_id")
+  listId        String  @map("list_id")
   catalogItemId String  @map("catalog_item_id")
   isManual      Boolean @default(true) @map("is_manual")
 
-  household   Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  list        List        @relation(fields: [listId], references: [id], onDelete: Cascade)
   catalogItem CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
 
-  @@id([householdId, catalogItemId])
+  @@id([listId, catalogItemId])
   @@map("usual_items")
 }
 

@@ -73,7 +73,10 @@ async function handleAddUsual() {
       </div>
       <h1>{{ listsStore.currentList?.name ?? '…' }}</h1>
       <div class="header-actions">
-        <AddUsualButton v-if="!isSharedList" :loading="addingUsual" @click="handleAddUsual" />
+        <AddUsualButton :loading="addingUsual" @click="handleAddUsual" />
+        <RouterLink :to="`/lists/${listId}/usual-items`" class="btn-share">
+          Edit usual items
+        </RouterLink>
         <RouterLink v-if="!isSharedList" :to="`/lists/${listId}/share`" class="btn-share">
           Share
         </RouterLink>

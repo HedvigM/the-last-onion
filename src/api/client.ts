@@ -194,20 +194,33 @@ export const api = {
     })
   },
 
-  getUsualItems(householdId: string) {
-    return request<import('@/types').UsualItem[]>(`/households/${householdId}/usual-items`)
+  getUsualItems(listId: string) {
+    return request<import('@/types').UsualItem[]>(`/lists/${listId}/usual-items`)
   },
 
-  pinUsualItem(householdId: string, data: { name?: string; catalogItemId?: string }) {
-    return request<import('@/types').UsualItem>(`/households/${householdId}/usual-items`, {
+  pinUsualItem(
+    listId: string,
+    input: string | { name?: string; catalogItemId?: string },
+  ) {
+    let body: { name?: string; catalogItemId?: string }
+    if (typeof input === 'string') {
+      body = { name: input.trim() }
+    } else if (input.catalogItemId) {
+      body = { catalogItemId: input.catalogItemId }
+    } else if (typeof input.name === 'string') {
+      body = { name: input.name.trim() }
+    } else {
+      throw new ApiError('name or catalogItemId required', 400)
+    }
+    return request<import('@/types').UsualItem>(`/lists/${listId}/usual-items`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(body),
     })
   },
 
-  unpinUsualItem(householdId: string, catalogItemId: string) {
+  unpinUsualItem(listId: string, catalogItemId: string) {
     return request<{ success: boolean }>(
-      `/households/${householdId}/usual-items/${catalogItemId}`,
+      `/lists/${listId}/usual-items/${catalogItemId}`,
       { method: 'DELETE' },
     )
   },

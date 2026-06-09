@@ -111,7 +111,6 @@ async function copyLink() {
 
     <section class="section links">
       <RouterLink to="/settings/categories">Edit categories</RouterLink>
-      <RouterLink to="/settings/usual-items">Edit usual items</RouterLink>
     </section>
 
     <section class="section">

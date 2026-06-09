@@ -1,23 +1,33 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
-import { requireHouseholdAccess } from '../lib/access.js'
+import { requireListAccess } from '../lib/access.js'
 import { authenticate, handleError } from '../lib/auth-helpers.js'
 import { findOrCreateCatalogItem } from '../services/items.js'
 import { getUsualCatalogItems } from '../services/usual-items.js'
 
-const pinSchema = z.object({
-  name: z.string().min(1).optional(),
-  catalogItemId: z.string().optional(),
-})
+const pinSchema = z
+  .object({
+    name: z.unknown().optional(),
+    catalogItemId: z.unknown().optional(),
+  })
+  .transform((body) => {
+    const catalogItemId =
+      typeof body.catalogItemId === 'string' ? body.catalogItemId : undefined
+    const name = typeof body.name === 'string' ? body.name.trim() : undefined
+    return { catalogItemId, name: name || undefined }
+  })
+  .refine((body) => !!(body.catalogItemId || body.name), {
+    message: 'name or catalogItemId required',
+  })
 
 export async function usualItemRoutes(app: FastifyInstance) {
-  app.get('/households/:householdId/usual-items', { preHandler: authenticate }, async (request, reply) => {
+  app.get('/lists/:listId/usual-items', { preHandler: authenticate }, async (request, reply) => {
     try {
-      const { householdId } = request.params as { householdId: string }
-      await requireHouseholdAccess(prisma, request.userId, householdId)
+      const { listId } = request.params as { listId: string }
+      const { householdId } = await requireListAccess(prisma, request.userId, listId)
 
-      const items = await getUsualCatalogItems(prisma, householdId)
+      const items = await getUsualCatalogItems(prisma, listId, householdId)
       return items.map((item) => ({
         catalogItemId: item.catalogItem.id,
         displayName: item.catalogItem.displayName,
@@ -33,10 +43,10 @@ export async function usualItemRoutes(app: FastifyInstance) {
     }
   })
 
-  app.post('/households/:householdId/usual-items', { preHandler: authenticate }, async (request, reply) => {
+  app.post('/lists/:listId/usual-items', { preHandler: authenticate }, async (request, reply) => {
     try {
-      const { householdId } = request.params as { householdId: string }
-      await requireHouseholdAccess(prisma, request.userId, householdId)
+      const { listId } = request.params as { listId: string }
+      const { householdId } = await requireListAccess(prisma, request.userId, listId)
       const body = pinSchema.parse(request.body)
 
       let catalogItemId = body.catalogItemId
@@ -50,9 +60,9 @@ export async function usualItemRoutes(app: FastifyInstance) {
 
       await prisma.usualItem.upsert({
         where: {
-          householdId_catalogItemId: { householdId, catalogItemId },
+          listId_catalogItemId: { listId, catalogItemId },
         },
-        create: { householdId, catalogItemId, isManual: true },
+        create: { listId, catalogItemId, isManual: true },
         update: { isManual: true },
       })
 
@@ -76,18 +86,18 @@ export async function usualItemRoutes(app: FastifyInstance) {
   })
 
   app.delete(
-    '/households/:householdId/usual-items/:catalogItemId',
+    '/lists/:listId/usual-items/:catalogItemId',
     { preHandler: authenticate },
     async (request, reply) => {
       try {
-        const { householdId, catalogItemId } = request.params as {
-          householdId: string
+        const { listId, catalogItemId } = request.params as {
+          listId: string
           catalogItemId: string
         }
-        await requireHouseholdAccess(prisma, request.userId, householdId)
+        await requireListAccess(prisma, request.userId, listId)
 
         await prisma.usualItem.deleteMany({
-          where: { householdId, catalogItemId, isManual: true },
+          where: { listId, catalogItemId, isManual: true },
         })
         return { success: true }
       } catch (error) {

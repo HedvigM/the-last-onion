@@ -2,18 +2,22 @@ import type { PrismaClient } from '@prisma/client'
 import { USUAL_ITEM_THRESHOLD, USUAL_ITEM_WINDOW_DAYS } from '../lib/categories.js'
 import { addItemToList } from './items.js'
 
-export async function getUsualCatalogItems(prisma: PrismaClient, householdId: string) {
+export async function getUsualCatalogItems(
+  prisma: PrismaClient,
+  listId: string,
+  householdId: string,
+) {
   const since = new Date()
   since.setDate(since.getDate() - USUAL_ITEM_WINDOW_DAYS)
 
   const [manualItems, purchaseCounts] = await Promise.all([
     prisma.usualItem.findMany({
-      where: { householdId, isManual: true },
+      where: { listId, isManual: true },
       include: { catalogItem: { include: { category: true } } },
     }),
     prisma.purchaseEvent.groupBy({
       by: ['catalogItemId'],
-      where: { householdId, purchasedAt: { gte: since } },
+      where: { listId, householdId, purchasedAt: { gte: since } },
       _count: { catalogItemId: true },
     }),
   ])
@@ -61,7 +65,7 @@ export async function addUsualItemsToList(
   listId: string,
   householdId: string,
 ) {
-  const usualItems = await getUsualCatalogItems(prisma, householdId)
+  const usualItems = await getUsualCatalogItems(prisma, listId, householdId)
 
   const added = []
   for (const usual of usualItems) {

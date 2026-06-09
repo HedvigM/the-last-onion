@@ -42,6 +42,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/lists/:id/usual-items',
+      name: 'usual-items',
+      component: () => import('../views/UsualItemsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/settings',
       name: 'settings',
       component: () => import('../views/SettingsView.vue'),
@@ -51,12 +57,6 @@ const router = createRouter({
       path: '/settings/categories',
       name: 'categories',
       component: () => import('../views/CategoriesView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/settings/usual-items',
-      name: 'usual-items',
-      component: () => import('../views/UsualItemsView.vue'),
       meta: { requiresAuth: true },
     },
     {
