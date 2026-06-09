@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { onClickOutside } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 
@@ -10,6 +11,8 @@ const router = useRouter()
 
 const newListName = ref('')
 const showCreate = ref(false)
+const createFormRef = ref<HTMLElement | null>(null)
+const newListBtnRef = ref<HTMLElement | null>(null)
 
 const householdLists = computed(() => listsStore.lists.filter((l) => !l.isShared))
 const sharedLists = computed(() => listsStore.lists.filter((l) => l.isShared))
@@ -20,11 +23,25 @@ onMounted(async () => {
   }
 })
 
+function cancelCreate() {
+  showCreate.value = false
+  newListName.value = ''
+}
+
+function toggleCreate() {
+  if (showCreate.value) {
+    cancelCreate()
+  } else {
+    showCreate.value = true
+  }
+}
+
+onClickOutside(createFormRef, cancelCreate, { ignore: [newListBtnRef] })
+
 async function createList() {
   if (!auth.activeHousehold || !newListName.value.trim()) return
   const list = await listsStore.createList(auth.activeHousehold.id, newListName.value.trim())
-  newListName.value = ''
-  showCreate.value = false
+  cancelCreate()
   router.push(`/lists/${list.id}`)
 }
 </script>
@@ -36,14 +53,23 @@ async function createList() {
         <h1>Lists</h1>
         <p v-if="auth.activeHousehold" class="subtitle">{{ auth.activeHousehold.name }}</p>
       </div>
-      <button type="button" class="btn-primary" @click="showCreate = !showCreate">
+      <button ref="newListBtnRef" type="button" class="btn-primary" @click="toggleCreate">
         + New list
       </button>
     </header>
 
-    <form v-if="showCreate" class="create-form" @submit.prevent="createList">
+    <form
+      v-if="showCreate"
+      ref="createFormRef"
+      class="create-form"
+      @submit.prevent="createList"
+      @keydown.esc="cancelCreate"
+    >
       <input v-model="newListName" placeholder="List name" required autofocus />
       <button type="submit">Create</button>
+      <button type="button" class="btn-cancel" aria-label="Cancel" @click="cancelCreate">
+        ×
+      </button>
     </form>
 
     <div v-if="listsStore.loading" class="loading">Loading lists…</div>
@@ -134,13 +160,31 @@ h1 {
   font-size: 16px;
 }
 
-.create-form button {
+.create-form button[type='submit'] {
   padding: 0.75rem 1rem;
   background: var(--primary);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.btn-cancel {
+  flex-shrink: 0;
+  width: 2.5rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  color: var(--text);
+  border-color: var(--muted);
 }
 
 .list-section {

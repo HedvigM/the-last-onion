@@ -32,8 +32,7 @@ const emit = defineEmits<{
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  border: 2px solid var(--secondary);
-  border-radius: 0.5rem 0.5rem 0 0;
+  border-bottom: 2px solid var(--secondary);
   padding: 0.75rem 1rem 0.25rem;
   margin: 0;
 }
