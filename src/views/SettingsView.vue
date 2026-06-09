@@ -143,7 +143,7 @@ async function copyLink() {
       </button>
     </section>
 
-    <button type="button" class="logout" @click="auth.logout(); router.push('/login')">
+    <button type="button" class="logout" @click="auth.logout(); router.push('/')">
       Sign out
     </button>
   </div>
