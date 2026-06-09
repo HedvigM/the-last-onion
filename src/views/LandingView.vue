@@ -87,8 +87,10 @@ const features = computed(() => [
 
       <div class="feature-grid">
         <article v-for="(feat, i) in features" :key="i" class="feature-card m-card-soft">
+          <div style="display: flex; gap: 0.5rem; align-items: end;">
           <span class="feature-icon" aria-hidden="true">{{ feat.icon }}</span>
           <h3 class="font-serif">{{ feat.title }}</h3>
+        </div>
           <p>{{ feat.description }}</p>
           <div class="tag-row">
             <span v-for="tag in feat.tags" :key="tag" class="tag">✓ {{ tag }}</span>
@@ -228,7 +230,6 @@ const features = computed(() => [
   font-size: clamp(1.75rem, 5vw, 2.5rem);
   line-height: 1.15;
   color: var(--m-green-dark, #1b4332);
-  max-width: 14ch;
 }
 
 .hero-body {
@@ -236,7 +237,6 @@ const features = computed(() => [
   font-size: 0.9375rem;
   line-height: 1.65;
   color: var(--muted);
-  max-width: 32ch;
 }
 
 .about-band {
@@ -354,8 +354,8 @@ const features = computed(() => [
   transform: translateX(-50%) rotate(-2deg);
   background: var(--m-green-100, #d4e8dc);
   color: var(--m-green-dark, #1b4332);
-  padding: 0.25rem 1rem;
-  font-size: 1rem;
+  padding: 0.0rem 0.5rem;
+  font-size: 1.6rem;
   white-space: nowrap;
   border: 1.5px solid var(--m-green-mid, #2d6a4f);
   border-radius: 4px;
