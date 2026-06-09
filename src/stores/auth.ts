@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api, setToken, getToken } from '@/api/client'
-import { setAppLocale } from '@/i18n'
+import { setAppLocale, getStoredLocale, getCurrentLocale } from '@/i18n'
+import { i18n } from '@/i18n'
+import { translateApiError } from '@/composables/useApiError'
 import type { AppLanguage, User, Household } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -25,6 +27,10 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('activeHouseholdId', id)
   }
 
+  function setError(message: string) {
+    error.value = translateApiError(message, (key) => i18n.global.t(key))
+  }
+
   async function register(data: {
     email: string
     password: string
@@ -35,7 +41,10 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await api.register(data)
+      const res = await api.register({
+        ...data,
+        language: data.language ?? getCurrentLocale(),
+      })
       setToken(res.token)
       user.value = res.user
       households.value = [res.household]
@@ -43,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
       applyUserLanguage(res.user.language)
       return res
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Registration failed'
+      setError(e instanceof Error ? e.message : 'Registration failed')
       throw e
     } finally {
       loading.value = false
@@ -61,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
       await fetchMe()
       return res
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Login failed'
+      setError(e instanceof Error ? e.message : 'Login failed')
       throw e
     } finally {
       loading.value = false
@@ -98,7 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     households.value = []
     activeHouseholdId.value = null
     localStorage.removeItem('activeHouseholdId')
-    applyUserLanguage('en')
+    applyUserLanguage(getStoredLocale() ?? 'en')
   }
 
   async function acceptInvite(token: string) {

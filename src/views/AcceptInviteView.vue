@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 import { api } from '@/api/client'
+import { translateApiError } from '@/composables/useApiError'
 import type { InvitePreview } from '@/types'
 
 const auth = useAuthStore()
 const listsStore = useListsStore()
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const token = computed(() => route.params.token as string)
 const invite = ref<InvitePreview | null>(null)
@@ -27,9 +30,15 @@ const emailMismatch = computed(() => {
 const inviteSummary = computed(() => {
   if (!invite.value?.targetName) return null
   if (invite.value.type === 'list') {
-    return `${invite.value.invitedBy} invited you to collaborate on "${invite.value.targetName}"`
+    return t('invite.summaryList', {
+      invitedBy: invite.value.invitedBy,
+      targetName: invite.value.targetName,
+    })
   }
-  return `${invite.value.invitedBy} invited you to join "${invite.value.targetName}"`
+  return t('invite.summaryHousehold', {
+    invitedBy: invite.value.invitedBy,
+    targetName: invite.value.targetName,
+  })
 })
 
 const loginUrl = computed(() => ({
@@ -52,7 +61,8 @@ async function loadInvite() {
   try {
     invite.value = await api.getInvite(token.value)
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Could not load invite'
+    const message = e instanceof Error ? e.message : 'Could not load invite'
+    error.value = translateApiError(message, t)
   } finally {
     loading.value = false
   }
@@ -77,7 +87,8 @@ async function handleAccept() {
       router.push('/lists')
     }
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to accept invite'
+    const message = e instanceof Error ? e.message : 'Failed to accept invite'
+    error.value = translateApiError(message, t)
   } finally {
     accepting.value = false
   }
@@ -99,58 +110,73 @@ function goToTarget() {
 <template>
   <div class="accept-page">
     <div v-if="loading" class="card">
-      <p>Loading invite…</p>
+      <p>{{ t('invite.loading') }}</p>
     </div>
 
     <div v-else-if="error && !invite" class="card">
-      <h1>Invite not found</h1>
+      <h1>{{ t('invite.notFound') }}</h1>
       <p class="muted">{{ error }}</p>
-      <RouterLink to="/lists" class="btn-secondary">Go to lists</RouterLink>
+      <RouterLink to="/lists" class="btn-secondary">{{ t('invite.goToLists') }}</RouterLink>
     </div>
 
     <div v-else-if="invite" class="card">
-      <h1>You're invited!</h1>
+      <h1>{{ t('invite.youreInvited') }}</h1>
 
       <p v-if="invite.status === 'expired'" class="error">
-        This invite has expired. Ask {{ invite.invitedBy }} to send a new link.
+        {{ t('invite.expired', { name: invite.invitedBy }) }}
       </p>
 
       <p v-else-if="invite.status === 'accepted' && !invite.alreadyMember" class="error">
-        This invite has already been used.
+        {{ t('invite.alreadyUsed') }}
       </p>
 
       <template v-else>
         <p v-if="inviteSummary" class="summary">{{ inviteSummary }}</p>
 
         <p v-if="invite.type === 'list'" class="muted detail">
-          You'll be able to add and check off items on this shared list. It stays separate from
-          your own household lists.
+          {{ t('invite.detailList') }}
         </p>
         <p v-else class="muted detail">
-          You'll join this household and see all of its grocery lists.
+          {{ t('invite.detailHousehold') }}
         </p>
 
         <p v-if="emailMismatch" class="warning">
-          This invite was sent to <strong>{{ invite.email }}</strong>. You're signed in as
-          <strong>{{ auth.user?.email }}</strong>. You can still accept, but make sure this is the
-          account you want to use.
+          {{
+            t('invite.emailMismatch', {
+              inviteEmail: invite.email,
+              userEmail: auth.user?.email ?? '',
+            })
+          }}
         </p>
 
         <p v-if="error" class="error">{{ error }}</p>
 
         <template v-if="invite.alreadyMember">
-          <p class="success">You're already on this {{ invite.type === 'list' ? 'list' : 'household' }}.</p>
+          <p class="success">
+            {{
+              t('invite.alreadyMember', {
+                type:
+                  invite.type === 'list'
+                    ? t('invite.alreadyMemberList')
+                    : t('invite.alreadyMemberHousehold'),
+              })
+            }}
+          </p>
           <button type="button" class="btn-primary" @click="goToTarget">
-            Go to {{ invite.type === 'list' ? 'list' : 'household lists' }}
+            {{
+              invite.type === 'list' ? t('invite.goToList') : t('invite.goToHouseholdLists')
+            }}
           </button>
         </template>
 
         <template v-else-if="invite.status === 'valid'">
           <template v-if="!isLoggedIn">
-            <p class="muted">Sign in or create an account to accept.</p>
+            <p class="muted">{{ t('invite.signInToAccept') }}</p>
             <div class="actions">
-              <RouterLink :to="loginUrl" class="btn-primary">Sign in</RouterLink>
-              <RouterLink :to="registerUrl" class="btn-secondary">Create account</RouterLink>
+              <RouterLink :to="loginUrl" class="btn-primary">{{ t('auth.signIn') }}</RouterLink>
+              <RouterLink :to="registerUrl" class="btn-secondary">
+                {{ t('auth.createAccount') }}
+              </RouterLink>
             </div>
           </template>
 
@@ -161,7 +187,7 @@ function goToTarget() {
               :disabled="accepting"
               @click="handleAccept"
             >
-              {{ accepting ? 'Accepting…' : 'Accept invite' }}
+              {{ accepting ? t('invite.accepting') : t('invite.acceptInvite') }}
             </button>
           </template>
         </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, toRef } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 import { useCategoriesStore } from '@/stores/categories'
@@ -15,6 +16,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const listsStore = useListsStore()
 const categoriesStore = useCategoriesStore()
+const { t } = useI18n()
 
 const listId = computed(() => route.params.id as string)
 const addingUsual = ref(false)
@@ -67,23 +69,23 @@ async function handleAddUsual() {
 <template>
   <div class="list-detail">
     <header class="list-header">
-      <RouterLink to="/lists" class="back">← Lists</RouterLink>
+      <RouterLink to="/lists" class="back">{{ t('listDetail.back') }}</RouterLink>
       <div v-if="isSharedList" class="shared-banner">
-        Shared list — you're collaborating with another household
+        {{ t('listDetail.sharedBanner') }}
       </div>
       <h1>{{ listsStore.currentList?.name ?? '…' }}</h1>
       <div class="header-actions">
         <AddUsualButton :loading="addingUsual" @click="handleAddUsual" />
         <RouterLink :to="`/lists/${listId}/usual-items`" class="btn-share">
-          Edit usual items
+          {{ t('listDetail.editUsualItems') }}
         </RouterLink>
         <RouterLink v-if="!isSharedList" :to="`/lists/${listId}/share`" class="btn-share">
-          Share
+          {{ t('common.share') }}
         </RouterLink>
       </div>
     </header>
 
-    <div v-if="listsStore.loading" class="loading">Loading…</div>
+    <div v-if="listsStore.loading" class="loading">{{ t('listDetail.loading') }}</div>
 
     <template v-else>
       <div class="items-container">
@@ -99,7 +101,7 @@ async function handleAddUsual() {
         />
 
         <p v-if="!uncheckedByCategory.length && !checkedItems.length" class="empty">
-          Your list is empty. Add items below or tap "Usual items".
+          {{ t('listDetail.empty') }}
         </p>
 
         <CheckedSection

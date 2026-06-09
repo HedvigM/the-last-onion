@@ -1,52 +1,50 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import MarketingShell from '@/components/MarketingShell.vue'
 
-const features = [
+const { t } = useI18n()
+
+const features = computed(() => [
   {
     icon: '🏠',
-    title: 'Household lists',
-    description:
-      'Create lists for your home. Everyone in the household sees the same groceries — and what’s already in the cart.',
-    tags: ['Multi-user', 'Free'],
+    title: t('marketing.landing.feature1Title'),
+    description: t('marketing.landing.feature1Desc'),
+    tags: [t('marketing.landing.feature1Tag1'), t('marketing.landing.feature1Tag2')],
   },
   {
     icon: '⚡',
-    title: 'Live sync',
-    description:
-      'Check off milk on your phone while someone else adds bread. Changes show up instantly, no refresh needed.',
-    tags: ['Real-time', 'No refresh'],
+    title: t('marketing.landing.feature2Title'),
+    description: t('marketing.landing.feature2Desc'),
+    tags: [t('marketing.landing.feature2Tag1'), t('marketing.landing.feature2Tag2')],
   },
   {
     icon: '🧅',
-    title: 'Usual items',
-    description:
-      'Pin staples you always buy, or let the app learn your regulars. Add them to any list in one tap.',
-    tags: ['Smart', 'One tap'],
+    title: t('marketing.landing.feature3Title'),
+    description: t('marketing.landing.feature3Desc'),
+    tags: [t('marketing.landing.feature3Tag1'), t('marketing.landing.feature3Tag2')],
   },
   {
     icon: '🛒',
-    title: 'Smart categories',
-    description:
-      'Items sort into vegetables, dairy, baking, and more. Edit categories to match how your kitchen actually works.',
-    tags: ['Auto-sort', 'Editable'],
+    title: t('marketing.landing.feature4Title'),
+    description: t('marketing.landing.feature4Desc'),
+    tags: [t('marketing.landing.feature4Tag1'), t('marketing.landing.feature4Tag2')],
   },
-]
+])
 </script>
 
 <template>
   <MarketingShell>
-    <!-- Split hero -->
     <section class="hero">
       <div class="hero-visual">
         <div class="hero-frame m-card">
           <div class="hero-frame-inner">
             <span class="hero-onion" aria-hidden="true">🧅</span>
           </div>
-          <span class="sticker sticker-tl" aria-hidden="true">est. 2026</span>
-          <span class="sticker sticker-br font-script">household-ready</span>
+          <span class="sticker sticker-tl" aria-hidden="true">{{ t('marketing.landing.stickerEst') }}</span>
+          <span class="sticker sticker-br font-script">{{ t('marketing.landing.stickerReady') }}</span>
         </div>
-        <!-- whimsical doodles -->
         <svg class="doodle doodle-cart" viewBox="0 0 48 48" fill="none" aria-hidden="true">
           <circle cx="12" cy="38" r="4" stroke="currentColor" stroke-width="2" />
           <circle cx="36" cy="38" r="4" stroke="currentColor" stroke-width="2" />
@@ -55,58 +53,40 @@ const features = [
       </div>
 
       <div class="hero-copy">
-        <p class="hero-eyebrow">Welcome to the heart of the kitchen</p>
-        <h1 class="hero-headline font-serif">
-          Shared grocery lists for people who share a fridge
-        </h1>
-        <p class="hero-body">
-          A small, friendly app for the everyday chaos of feeding a home — without the group chat
-          spiral or the second bag of onions.
-        </p>
+        <p class="hero-eyebrow">{{ t('marketing.landing.eyebrow') }}</p>
+        <h1 class="hero-headline font-serif">{{ t('marketing.landing.headline') }}</h1>
+        <p class="hero-body">{{ t('marketing.landing.body') }}</p>
         <RouterLink to="/login?register=1" class="m-btn m-btn-primary--green">
-          Get started free
+          {{ t('marketing.landing.getStartedFree') }}
         </RouterLink>
       </div>
     </section>
 
-    <!-- Ribbon -->
     <div class="m-ribbon">
-      <p class="m-ribbon-inner">
-        Built for households · Real-time sync · Free to use
-      </p>
+      <p class="m-ribbon-inner">{{ t('marketing.landing.ribbon') }}</p>
     </div>
 
-    <!-- Who we are + mission (green band, two cards) -->
     <section class="about-band">
       <div class="about-cards">
         <article class="about-card m-card">
-          <h2 class="font-serif">Who we are</h2>
+          <h2 class="font-serif">{{ t('marketing.landing.whoWeAre') }}</h2>
           <hr class="card-rule" />
-          <p>
-            The Last Onion is a shared grocery list app for people who live together. Roommates,
-            partners, families — anyone who shops from the same fridge and wants to stay on the same
-            page.
-          </p>
+          <p>{{ t('marketing.landing.whoWeAreText') }}</p>
         </article>
         <article class="about-card m-card">
-          <h2 class="font-serif">Our mission</h2>
+          <h2 class="font-serif">{{ t('marketing.landing.ourMission') }}</h2>
           <hr class="card-rule" />
-          <p>
-            Grocery shopping should feel like a shared chore chart, not a logistics puzzle. We built
-            something calm, obvious, and a little bit whimsical — like a note on the fridge that
-            syncs in real time.
-          </p>
+          <p>{{ t('marketing.landing.ourMissionText') }}</p>
         </article>
       </div>
     </section>
 
-    <!-- Features 2×2 grid -->
     <section id="features" class="features-section">
-      <h2 class="section-title font-serif">What you get</h2>
-      <p class="section-sub">Everything your kitchen table needs, nothing it doesn't.</p>
+      <h2 class="section-title font-serif">{{ t('marketing.landing.whatYouGet') }}</h2>
+      <p class="section-sub">{{ t('marketing.landing.whatYouGetSub') }}</p>
 
       <div class="feature-grid">
-        <article v-for="feat in features" :key="feat.title" class="feature-card m-card-soft">
+        <article v-for="(feat, i) in features" :key="i" class="feature-card m-card-soft">
           <span class="feature-icon" aria-hidden="true">{{ feat.icon }}</span>
           <h3 class="font-serif">{{ feat.title }}</h3>
           <p>{{ feat.description }}</p>
@@ -117,20 +97,18 @@ const features = [
       </div>
     </section>
 
-    <!-- Dashed CTA (scrapbook coupon feel) -->
     <section class="cta-section">
       <div class="cta-dashed">
-        <span class="cta-sticker font-script">ready when you are</span>
-        <h2 class="font-serif">Start your first shared list today</h2>
-        <p>
-          Create a household, invite the people you live with, and never wonder who’s buying the
-          onions again. Setup takes about a minute.
-        </p>
+        <span class="cta-sticker font-script">{{ t('marketing.landing.ctaSticker') }}</span>
+        <h2 class="font-serif">{{ t('marketing.landing.ctaTitle') }}</h2>
+        <p>{{ t('marketing.landing.ctaBody') }}</p>
         <div class="cta-actions">
           <RouterLink to="/login?register=1" class="m-btn m-btn-primary--green">
-            Create free account
+            {{ t('marketing.landing.createFreeAccount') }}
           </RouterLink>
-          <RouterLink to="/about" class="m-btn m-btn-secondary">Learn more</RouterLink>
+          <RouterLink to="/about" class="m-btn m-btn-secondary">
+            {{ t('marketing.landing.learnMore') }}
+          </RouterLink>
         </div>
       </div>
     </section>
@@ -138,7 +116,6 @@ const features = [
 </template>
 
 <style scoped>
-/* ——— Hero split ——— */
 .hero {
   display: grid;
   grid-template-columns: 1fr;
@@ -262,7 +239,6 @@ const features = [
   max-width: 32ch;
 }
 
-/* ——— About band ——— */
 .about-band {
   background: var(--m-green-mid, #2d6a4f);
   padding: 2.5rem 1.5rem;
@@ -302,7 +278,6 @@ const features = [
   color: #2f3d36;
 }
 
-/* ——— Features ——— */
 .features-section {
   padding: 3rem 1.5rem;
   background: var(--m-cream, #f7f4ed);
@@ -356,7 +331,6 @@ const features = [
   flex: 1;
 }
 
-/* ——— CTA dashed ——— */
 .cta-section {
   padding: 3rem 1.5rem 4rem;
   background: var(--m-cream, #f7f4ed);

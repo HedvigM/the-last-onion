@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 import { api } from '@/api/client'
+import { translateApiError } from '@/composables/useApiError'
 
 const route = useRoute()
 const auth = useAuthStore()
 const listsStore = useListsStore()
+const { t } = useI18n()
 
 const listId = route.params.id as string
 const email = ref('')
@@ -29,7 +32,8 @@ async function sendInvite() {
     const res = await api.inviteToList(listId, email.value.trim())
     inviteToken.value = res.token
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to send invite'
+    const message = e instanceof Error ? e.message : 'Failed to send invite'
+    error.value = translateApiError(message, t)
   } finally {
     loading.value = false
   }
@@ -49,40 +53,42 @@ async function copyLink() {
 
 <template>
   <div class="share-page">
-    <RouterLink :to="`/lists/${listId}`" class="back">← Back to list</RouterLink>
-    <h1>Share "{{ listsStore.currentList?.name }}"</h1>
-    <p class="desc">Invite someone outside your household to collaborate on this list.</p>
+    <RouterLink :to="`/lists/${listId}`" class="back">{{ t('share.back') }}</RouterLink>
+    <h1>{{ t('share.title', { name: listsStore.currentList?.name ?? '' }) }}</h1>
+    <p class="desc">{{ t('share.desc') }}</p>
 
     <form @submit.prevent="sendInvite">
       <div class="field">
-        <label for="email">Email address</label>
-        <input id="email" v-model="email" type="email" required placeholder="friend@example.com" />
+        <label for="email">{{ t('share.emailAddress') }}</label>
+        <input
+          id="email"
+          v-model="email"
+          type="email"
+          required
+          :placeholder="t('share.emailPlaceholder')"
+        />
       </div>
       <button type="submit" class="btn-primary" :disabled="loading">
-        {{ loading ? 'Creating invite…' : 'Create invite link' }}
+        {{ loading ? t('share.creatingInvite') : t('share.createInviteLink') }}
       </button>
     </form>
 
     <p v-if="error" class="error">{{ error }}</p>
 
     <div v-if="inviteToken" class="invite-result">
-      <p>Share this link with <strong>{{ email }}</strong>:</p>
+      <p>{{ t('share.shareWith', { email }) }}</p>
       <code class="link">{{ inviteLink() }}</code>
-      <button type="button" class="btn-secondary" @click="copyLink">Copy link</button>
-      <p class="invite-hint">
-        The recipient must open this link and accept the invite. They can sign in or create a new
-        account when they do.
-      </p>
+      <button type="button" class="btn-secondary" @click="copyLink">{{ t('common.copyLink') }}</button>
+      <p class="invite-hint">{{ t('share.inviteHint') }}</p>
     </div>
 
     <hr />
 
-    <h2>Household members</h2>
+    <h2>{{ t('share.householdMembers') }}</h2>
     <p class="desc">
-      Members of <strong>{{ auth.activeHousehold?.name }}</strong> already have access to all
-      household lists.
+      {{ t('share.householdMembersDesc', { name: auth.activeHousehold?.name ?? '' }) }}
     </p>
-    <RouterLink to="/settings" class="btn-secondary inline">Manage household</RouterLink>
+    <RouterLink to="/settings" class="btn-secondary inline">{{ t('share.manageHousehold') }}</RouterLink>
   </div>
 </template>
 

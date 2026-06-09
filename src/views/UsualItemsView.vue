@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useListsStore } from '@/stores/lists'
 import { useCategoriesStore } from '@/stores/categories'
 import { useCategoryLabel } from '@/composables/useCategoryLabel'
+import { translateApiError } from '@/composables/useApiError'
 
 const route = useRoute()
 const listsStore = useListsStore()
 const categoriesStore = useCategoriesStore()
 const { getCategoryLabel } = useCategoryLabel()
+const { t } = useI18n()
 
 const listId = computed(() => route.params.id as string)
 const itemQuery = ref('')
@@ -119,7 +122,8 @@ async function pinItem() {
     selectedCatalogItemId.value = null
     showSuggestions.value = false
   } catch (e) {
-    pinError.value = e instanceof Error ? e.message : 'Failed to pin item'
+    const message = e instanceof Error ? e.message : 'Failed to pin item'
+    pinError.value = translateApiError(message, t)
   }
 }
 
@@ -130,19 +134,16 @@ async function unpin(catalogItemId: string) {
 
 <template>
   <div class="usual-page">
-    <h1>Usual items</h1>
-    <p class="list-name">for {{ listName }}</p>
-    <p class="desc">
-      Items you buy often on this list appear here automatically (3+ times in 28 days). You can
-      also pin items manually.
-    </p>
+    <h1>{{ t('usualItems.title') }}</h1>
+    <p class="list-name">{{ t('usualItems.forList', { name: listName }) }}</p>
+    <p class="desc">{{ t('usualItems.desc') }}</p>
 
     <form class="add-form" @submit.prevent="pinItem">
       <div class="combobox">
         <input
           v-model="itemQuery"
           type="text"
-          placeholder="Type or choose an item…"
+          :placeholder="t('usualItems.placeholder')"
           autocomplete="off"
           @input="onInput"
           @focus="showSuggestions = true"
@@ -160,11 +161,11 @@ async function unpin(catalogItemId: string) {
             @mousedown.prevent="pickOption(opt)"
           >
             <span class="suggestion-name">{{ opt.displayName }}</span>
-            <span v-if="opt.checked" class="suggestion-meta">crossed off</span>
+            <span v-if="opt.checked" class="suggestion-meta">{{ t('usualItems.crossedOff') }}</span>
           </li>
         </ul>
       </div>
-      <button type="submit" :disabled="!itemQuery.trim()">Pin</button>
+      <button type="submit" :disabled="!itemQuery.trim()">{{ t('common.pin') }}</button>
     </form>
     <p v-if="pinError" class="error">{{ pinError }}</p>
 
@@ -175,8 +176,8 @@ async function unpin(catalogItemId: string) {
           <span class="meta">
             {{ usualItemCategoryLabel(item) }}
             ·
-            <span v-if="item.isManual">Pinned</span>
-            <span v-else>{{ item.purchaseCount }}× recently</span>
+            <span v-if="item.isManual">{{ t('usualItems.pinned') }}</span>
+            <span v-else>{{ t('usualItems.recently', { count: item.purchaseCount }) }}</span>
           </span>
         </div>
         <button
@@ -185,14 +186,14 @@ async function unpin(catalogItemId: string) {
           class="unpin"
           @click="unpin(item.catalogItemId)"
         >
-          Unpin
+          {{ t('common.unpin') }}
         </button>
       </li>
     </ul>
 
-    <p v-else class="empty">No usual items yet. Shop this list a few times or pin items manually.</p>
+    <p v-else class="empty">{{ t('usualItems.empty') }}</p>
 
-    <RouterLink :to="`/lists/${listId}`" class="back">← Back to list</RouterLink>
+    <RouterLink :to="`/lists/${listId}`" class="back">{{ t('usualItems.back') }}</RouterLink>
   </div>
 </template>
 

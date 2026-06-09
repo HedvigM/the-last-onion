@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useOffline } from '@/composables/useOffline'
 import { updateServiceWorker } from '@/pwa'
 
 const auth = useAuthStore()
 const route = useRoute()
+const { t } = useI18n()
 const { isOnline } = useOffline()
 const showUpdatePrompt = ref(false)
 
@@ -43,18 +45,20 @@ onUnmounted(() => {
 <template>
   <div id="app-root">
     <div v-if="!isOnline" class="offline-banner" role="status">
-      You're offline — list changes will sync when you reconnect.
+      {{ t('pwa.offline') }}
     </div>
     <div v-if="showUpdatePrompt" class="update-banner" role="alert">
-      <span>A new version is available.</span>
-      <button type="button" @click="applyUpdate">Update</button>
-      <button type="button" class="dismiss" @click="showUpdatePrompt = false">Later</button>
+      <span>{{ t('pwa.updateAvailable') }}</span>
+      <button type="button" @click="applyUpdate">{{ t('common.update') }}</button>
+      <button type="button" class="dismiss" @click="showUpdatePrompt = false">
+        {{ t('common.later') }}
+      </button>
     </div>
     <nav v-if="showNav" class="app-nav">
-      <RouterLink to="/lists" class="brand">🧅 The Last Onion</RouterLink>
+      <RouterLink to="/lists" class="brand">{{ t('nav.brand') }}</RouterLink>
       <div class="nav-links">
-        <RouterLink to="/lists">Lists</RouterLink>
-        <RouterLink to="/settings">Settings</RouterLink>
+        <RouterLink to="/lists">{{ t('nav.lists') }}</RouterLink>
+        <RouterLink to="/settings">{{ t('nav.settings') }}</RouterLink>
       </div>
     </nav>
     <main class="app-main" :class="{ 'app-main--flush': isMarketing }">

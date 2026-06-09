@@ -9,7 +9,7 @@ import type { AppLanguage, HouseholdDetail } from '@/types'
 
 const auth = useAuthStore()
 const router = useRouter()
-const { t } = useI18n()
+const { t, te } = useI18n()
 const { canInstall, isIos, install } = usePwaInstall()
 
 const households = ref<HouseholdDetail[]>([])
@@ -51,11 +51,16 @@ function inviteLink() {
 async function copyLink() {
   if (inviteLink()) await navigator.clipboard.writeText(inviteLink())
 }
+
+function roleLabel(role: string) {
+  const key = `roles.${role}`
+  return te(key) ? t(key) : role
+}
 </script>
 
 <template>
   <div class="settings-page">
-    <h1>Settings</h1>
+    <h1>{{ t('settings.title') }}</h1>
 
     <section v-if="auth.activeHousehold" class="section">
       <h2>{{ auth.activeHousehold.name }}</h2>
@@ -66,22 +71,19 @@ async function copyLink() {
           :key="member.userId"
         >
           {{ member.displayName }}
-          <span class="role">{{ member.role }}</span>
+          <span class="role">{{ roleLabel(member.role) }}</span>
         </li>
       </ul>
 
-      <h3>Invite to household</h3>
+      <h3>{{ t('settings.inviteToHousehold') }}</h3>
       <form @submit.prevent="inviteMember">
-        <input v-model="inviteEmail" type="email" placeholder="Email" required />
-        <button type="submit" :disabled="loading">Invite</button>
+        <input v-model="inviteEmail" type="email" :placeholder="t('common.email')" required />
+        <button type="submit" :disabled="loading">{{ t('common.invite') }}</button>
       </form>
       <div v-if="inviteToken" class="invite-box">
         <code>{{ inviteLink() }}</code>
-        <button type="button" @click="copyLink">Copy</button>
-        <p class="invite-hint">
-          The recipient must open this link and accept the invite. They can sign in or create a new
-          account when they do.
-        </p>
+        <button type="button" @click="copyLink">{{ t('common.copy') }}</button>
+        <p class="invite-hint">{{ t('settings.inviteHint') }}</p>
       </div>
     </section>
 
@@ -110,27 +112,21 @@ async function copyLink() {
     </section>
 
     <section class="section links">
-      <RouterLink to="/settings/categories">Edit categories</RouterLink>
+      <RouterLink to="/settings/categories">{{ t('settings.editCategories') }}</RouterLink>
     </section>
 
     <section class="section">
-      <h3>Install app</h3>
-      <p v-if="canInstall" class="install-hint">
-        Add The Last Onion to your home screen for quick access while shopping.
-      </p>
-      <p v-else-if="isIos" class="install-hint">
-        Tap Share, then "Add to Home Screen" in Safari.
-      </p>
-      <p v-else class="install-hint">
-        Open this site in Chrome on your phone and use "Add to Home Screen" or "Install app".
-      </p>
+      <h3>{{ t('settings.installApp') }}</h3>
+      <p v-if="canInstall" class="install-hint">{{ t('settings.installHint') }}</p>
+      <p v-else-if="isIos" class="install-hint">{{ t('settings.installHintIos') }}</p>
+      <p v-else class="install-hint">{{ t('settings.installHintOther') }}</p>
       <button v-if="canInstall" type="button" class="install-btn" @click="install">
-        Install app
+        {{ t('settings.installApp') }}
       </button>
     </section>
 
     <section v-if="auth.households.length > 1" class="section">
-      <h3>Switch household</h3>
+      <h3>{{ t('settings.switchHousehold') }}</h3>
       <button
         v-for="hh in auth.households"
         :key="hh.id"
@@ -144,7 +140,7 @@ async function copyLink() {
     </section>
 
     <button type="button" class="logout" @click="auth.logout(); router.push('/')">
-      Sign out
+      {{ t('settings.signOut') }}
     </button>
   </div>
 </template>

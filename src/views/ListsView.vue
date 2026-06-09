@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { onClickOutside } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
@@ -8,6 +9,7 @@ import { useListsStore } from '@/stores/lists'
 const auth = useAuthStore()
 const listsStore = useListsStore()
 const router = useRouter()
+const { t } = useI18n()
 
 const newListName = ref('')
 const showCreate = ref(false)
@@ -50,11 +52,11 @@ async function createList() {
   <div class="lists-page">
     <header class="page-header">
       <div>
-        <h1>Lists</h1>
+        <h1>{{ t('lists.title') }}</h1>
         <p v-if="auth.activeHousehold" class="subtitle">{{ auth.activeHousehold.name }}</p>
       </div>
       <button ref="newListBtnRef" type="button" class="btn-primary" @click="toggleCreate">
-        + New list
+        {{ t('lists.newList') }}
       </button>
     </header>
 
@@ -65,46 +67,46 @@ async function createList() {
       @submit.prevent="createList"
       @keydown.esc="cancelCreate"
     >
-      <input v-model="newListName" placeholder="List name" required autofocus />
-      <button type="submit">Create</button>
-      <button type="button" class="btn-cancel" aria-label="Cancel" @click="cancelCreate">
+      <input v-model="newListName" :placeholder="t('lists.listName')" required autofocus />
+      <button type="submit">{{ t('common.create') }}</button>
+      <button type="button" class="btn-cancel" :aria-label="t('common.cancel')" @click="cancelCreate">
         ×
       </button>
     </form>
 
-    <div v-if="listsStore.loading" class="loading">Loading lists…</div>
+    <div v-if="listsStore.loading" class="loading">{{ t('lists.loading') }}</div>
 
     <template v-else>
       <section v-if="householdLists.length" class="list-section">
-        <h2 class="section-title">Your lists</h2>
+        <h2 class="section-title">{{ t('lists.yourLists') }}</h2>
         <ul class="list-cards">
           <li v-for="list in householdLists" :key="list.id">
             <RouterLink :to="`/lists/${list.id}`" class="list-card">
               <span class="list-name">{{ list.name }}</span>
-              <span class="list-count">{{ list.uncheckedCount ?? 0 }} items</span>
+              <span class="list-count">{{ t('lists.itemCount', list.uncheckedCount ?? 0) }}</span>
             </RouterLink>
           </li>
         </ul>
       </section>
 
       <section v-if="sharedLists.length" class="list-section">
-        <h2 class="section-title">Shared with you</h2>
-        <p class="section-desc">Lists shared by someone outside your household</p>
+        <h2 class="section-title">{{ t('lists.sharedWithYou') }}</h2>
+        <p class="section-desc">{{ t('lists.sharedDesc') }}</p>
         <ul class="list-cards">
           <li v-for="list in sharedLists" :key="list.id">
             <RouterLink :to="`/lists/${list.id}`" class="list-card list-card--shared">
               <div class="list-card-main">
                 <span class="list-name">{{ list.name }}</span>
-                <span class="shared-badge">Shared</span>
+                <span class="shared-badge">{{ t('lists.shared') }}</span>
               </div>
-              <span class="list-count">{{ list.uncheckedCount ?? 0 }} items</span>
+              <span class="list-count">{{ t('lists.itemCount', list.uncheckedCount ?? 0) }}</span>
             </RouterLink>
           </li>
         </ul>
       </section>
 
       <p v-if="!householdLists.length && !sharedLists.length" class="empty">
-        No lists yet. Create one to start shopping!
+        {{ t('lists.empty') }}
       </p>
     </template>
   </div>

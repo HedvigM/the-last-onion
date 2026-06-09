@@ -51,7 +51,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  register(body: { email: string; password: string; displayName: string; householdName?: string }) {
+  register(body: {
+    email: string
+    password: string
+    displayName: string
+    householdName?: string
+    language?: import('@/types').AppLanguage
+  }) {
     return request<{ token: string; user: import('@/types').User; household: import('@/types').Household }>(
       '/auth/register',
       { method: 'POST', body: JSON.stringify(body) },

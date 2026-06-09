@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { ListItem } from '@/types'
 import ListItemRow from './ListItemRow.vue'
 
@@ -10,11 +11,13 @@ const emit = defineEmits<{
   toggle: [itemId: string, checked: boolean]
   delete: [itemId: string]
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <section v-if="items.length">
-    <h3 class="section-title">Checked off</h3>
+    <h3 class="section-title">{{ t('listItem.checkedOff') }}</h3>
     <ListItemRow
       v-for="item in items"
       :key="item.id"

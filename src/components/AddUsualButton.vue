@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 const emit = defineEmits<{ click: [] }>()
 const props = defineProps<{ loading?: boolean }>()
+const { t } = useI18n()
 </script>
 
 <template>
   <button type="button" class="btn-usual" :disabled="props.loading" @click="emit('click')">
-    {{ props.loading ? 'Adding…' : '+ Usual items' }}
+    {{ props.loading ? t('listDetail.addingUsual') : t('listDetail.usualItems') }}
   </button>
 </template>
 

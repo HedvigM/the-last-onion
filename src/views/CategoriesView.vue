@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useCategoriesStore } from '@/stores/categories'
 import { useCategoryLabel } from '@/composables/useCategoryLabel'
@@ -7,6 +8,7 @@ import { useCategoryLabel } from '@/composables/useCategoryLabel'
 const auth = useAuthStore()
 const categoriesStore = useCategoriesStore()
 const { getCategoryLabel } = useCategoryLabel()
+const { t } = useI18n()
 
 const newCategory = ref('')
 const editingId = ref<string | null>(null)
@@ -36,7 +38,7 @@ async function saveEdit() {
 }
 
 async function deleteCategory(id: string, label: string) {
-  if (confirm(`Delete "${label}"? Items will move to Other.`)) {
+  if (confirm(t('categories.deleteConfirm', { name: label }))) {
     await categoriesStore.deleteCategory(id)
   }
 }
@@ -58,19 +60,19 @@ async function moveDown(index: number) {
 
 <template>
   <div class="categories-page">
-    <h1>Categories</h1>
-    <p class="desc">Customize how items are grouped on your shopping lists.</p>
+    <h1>{{ t('categories.title') }}</h1>
+    <p class="desc">{{ t('categories.desc') }}</p>
 
     <form class="add-form" @submit.prevent="addCategory">
-      <input v-model="newCategory" placeholder="New category name" />
-      <button type="submit">Add</button>
+      <input v-model="newCategory" :placeholder="t('categories.newCategory')" />
+      <button type="submit">{{ t('common.add') }}</button>
     </form>
 
     <ul class="category-list">
       <li v-for="(cat, index) in categoriesStore.categories" :key="cat.id">
         <template v-if="editingId === cat.id">
           <input v-model="editingName" class="edit-input" @keyup.enter="saveEdit" />
-          <button type="button" @click="saveEdit">Save</button>
+          <button type="button" @click="saveEdit">{{ t('common.save') }}</button>
         </template>
         <template v-else>
           <span class="cat-name">{{ getCategoryLabel(cat) }}</span>
@@ -84,7 +86,7 @@ async function moveDown(index: number) {
               ↓
             </button>
             <button v-if="!cat.key" type="button" @click="startEdit(cat.id, cat.name)">
-              Edit
+              {{ t('common.edit') }}
             </button>
             <button
               v-if="cat.key !== 'other'"
@@ -92,14 +94,14 @@ async function moveDown(index: number) {
               class="danger"
               @click="deleteCategory(cat.id, getCategoryLabel(cat))"
             >
-              Delete
+              {{ t('common.delete') }}
             </button>
           </div>
         </template>
       </li>
     </ul>
 
-    <RouterLink to="/settings" class="back">← Back to settings</RouterLink>
+    <RouterLink to="/settings" class="back">{{ t('categories.back') }}</RouterLink>
   </div>
 </template>
 

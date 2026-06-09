@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import LanguageToggle from '@/components/LanguageToggle.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 const isRegister = ref(false)
 const email = ref('')
@@ -21,7 +24,7 @@ async function submit() {
       const trimmedName = displayName.value.trim()
       const trimmedHousehold = householdName.value.trim()
       if (!trimmedName) {
-        auth.error = 'Please enter your name'
+        auth.error = t('auth.enterName')
         return
       }
       await auth.register({
@@ -50,24 +53,27 @@ onMounted(() => {
 <template>
   <div class="auth-page">
     <div class="auth-card">
-      <h1>🧅 The Last Onion</h1>
-      <p class="subtitle">Shared grocery lists for your household</p>
+      <div class="auth-header">
+        <h1>{{ t('nav.brand') }}</h1>
+        <LanguageToggle />
+      </div>
+      <p class="subtitle">{{ t('auth.subtitle') }}</p>
 
       <form @submit.prevent="submit">
         <div v-if="isRegister" class="field">
-          <label for="displayName">Your name</label>
+          <label for="displayName">{{ t('auth.yourName') }}</label>
           <input id="displayName" v-model="displayName" required />
         </div>
         <div v-if="isRegister" class="field">
-          <label for="householdName">Household name</label>
-          <input id="householdName" v-model="householdName" placeholder="Optional" />
+          <label for="householdName">{{ t('auth.householdName') }}</label>
+          <input id="householdName" v-model="householdName" :placeholder="t('common.optional')" />
         </div>
         <div class="field">
-          <label for="email">Email</label>
+          <label for="email">{{ t('common.email') }}</label>
           <input id="email" v-model="email" type="email" required autocomplete="email" />
         </div>
         <div class="field">
-          <label for="password">Password</label>
+          <label for="password">{{ t('auth.password') }}</label>
           <input
             id="password"
             v-model="password"
@@ -81,12 +87,18 @@ onMounted(() => {
         <p v-if="auth.error" class="error">{{ auth.error }}</p>
 
         <button type="submit" class="btn-primary" :disabled="auth.loading">
-          {{ auth.loading ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in' }}
+          {{
+            auth.loading
+              ? t('common.pleaseWait')
+              : isRegister
+                ? t('auth.createAccount')
+                : t('auth.signIn')
+          }}
         </button>
       </form>
 
       <button type="button" class="btn-link" @click="isRegister = !isRegister">
-        {{ isRegister ? 'Already have an account? Sign in' : 'Need an account? Register' }}
+        {{ isRegister ? t('auth.alreadyHaveAccount') : t('auth.needAccount') }}
       </button>
     </div>
   </div>
@@ -108,6 +120,13 @@ onMounted(() => {
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 h1 {

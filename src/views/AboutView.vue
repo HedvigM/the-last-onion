@@ -1,96 +1,72 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import MarketingShell from '@/components/MarketingShell.vue'
 
-const beliefs = [
+const { t } = useI18n()
+
+const beliefs = computed(() => [
   {
     emoji: '🧅',
-    title: 'One onion is enough',
-    text: 'Re-add “carrots” and we reuse the same row — no duplicate lines cluttering your list.',
+    title: t('marketing.about.belief1Title'),
+    text: t('marketing.about.belief1Text'),
   },
   {
     emoji: '🏡',
-    title: 'Built for homes',
-    text: 'Households, shared fridges, the people you actually cook with. Simple invites, no corporate nonsense.',
+    title: t('marketing.about.belief2Title'),
+    text: t('marketing.about.belief2Text'),
   },
   {
     emoji: '☕',
-    title: 'Low-key by design',
-    text: 'No gamification, no streaks, no guilt. Just a list that stays in sync.',
+    title: t('marketing.about.belief3Title'),
+    text: t('marketing.about.belief3Text'),
   },
-]
+])
 
-const faqs = [
-  {
-    q: 'Is it really free?',
-    a: 'Yep. Make lists, invite your household, shop together. No paywall for the basics.',
-  },
-  {
-    q: 'Do I need to install anything?',
-    a: 'Nope — it works in your browser. You can add it to your home screen on your phone if you like.',
-  },
-  {
-    q: 'What if someone isn’t in my household?',
-    a: 'Invite them to a specific list instead. Handy for dinner parties or shared Costco runs.',
-  },
-  {
-    q: 'Why “The Last Onion”?',
-    a: 'Because someone always buys a second bag of onions. We’re trying to fix that.',
-  },
-]
+const faqs = computed(() => [
+  { q: t('marketing.about.faq1Q'), a: t('marketing.about.faq1A') },
+  { q: t('marketing.about.faq2Q'), a: t('marketing.about.faq2A') },
+  { q: t('marketing.about.faq3Q'), a: t('marketing.about.faq3A') },
+  { q: t('marketing.about.faq4Q'), a: t('marketing.about.faq4A') },
+])
 </script>
 
 <template>
   <MarketingShell>
-    <!-- Hero card on stripes -->
     <section class="about-hero">
       <div class="about-hero-card m-card">
-        <p class="about-eyebrow font-script">nice to meet you</p>
-        <h1 class="about-title font-serif">About The Last Onion</h1>
-        <p class="about-lead">
-          A tiny app with a big job: keep everyone in your home on the same grocery page — without
-          the drama.
-        </p>
+        <p class="about-eyebrow font-script">{{ t('marketing.about.eyebrow') }}</p>
+        <h1 class="about-title font-serif">{{ t('marketing.about.title') }}</h1>
+        <p class="about-lead">{{ t('marketing.about.lead') }}</p>
       </div>
     </section>
 
     <div class="m-ribbon">
-      <p class="m-ribbon-inner">A note on the fridge, but it syncs in real time</p>
+      <p class="m-ribbon-inner">{{ t('marketing.about.ribbon') }}</p>
     </div>
 
-    <!-- Story: two columns -->
     <section class="story-section">
       <div class="story-grid">
         <div class="story-col">
-          <h2 class="font-serif">The short version</h2>
+          <h2 class="font-serif">{{ t('marketing.about.shortVersion') }}</h2>
           <hr class="card-rule" />
-          <p>
-            The Last Onion is a shared grocery list for households. You make lists, add items, check
-            things off, and everyone sees the updates right away. Categories keep vegetables
-            separate from dairy. “Usual items” remembers the stuff you buy all the time.
-          </p>
-          <p>That’s pretty much it — on purpose.</p>
+          <p>{{ t('marketing.about.shortVersionP1') }}</p>
+          <p>{{ t('marketing.about.shortVersionP2') }}</p>
         </div>
         <div class="story-col">
-          <h2 class="font-serif">Why we made it</h2>
+          <h2 class="font-serif">{{ t('marketing.about.whyWeMadeIt') }}</h2>
           <hr class="card-rule" />
-          <p>
-            Shared shopping sounds simple until it isn’t. Texts get buried. Paper lists vanish.
-            Someone swears they told you about the milk.
-          </p>
-          <p>
-            We wanted something calm and obvious — a single place where the whole household can see
-            what’s needed and what’s already in the cart.
-          </p>
+          <p>{{ t('marketing.about.whyWeMadeItP1') }}</p>
+          <p>{{ t('marketing.about.whyWeMadeItP2') }}</p>
         </div>
       </div>
     </section>
 
-    <!-- Beliefs on green band -->
     <section class="beliefs-band">
-      <h2 class="section-title font-serif" style="color: #fff">What we believe</h2>
+      <h2 class="section-title font-serif" style="color: #fff">{{ t('marketing.about.whatWeBelieve') }}</h2>
       <div class="beliefs-grid">
-        <article v-for="item in beliefs" :key="item.title" class="belief-card m-card">
+        <article v-for="(item, i) in beliefs" :key="i" class="belief-card m-card">
           <span class="belief-emoji" aria-hidden="true">{{ item.emoji }}</span>
           <h3 class="font-serif">{{ item.title }}</h3>
           <p>{{ item.text }}</p>
@@ -98,12 +74,11 @@ const faqs = [
       </div>
     </section>
 
-    <!-- FAQ in dashed box -->
     <section class="faq-section">
       <div class="faq-box">
-        <h2 class="section-title font-serif">Questions you might have</h2>
+        <h2 class="section-title font-serif">{{ t('marketing.about.faqTitle') }}</h2>
         <dl class="faq-list">
-          <div v-for="item in faqs" :key="item.q" class="faq-item">
+          <div v-for="(item, i) in faqs" :key="i" class="faq-item">
             <dt>{{ item.q }}</dt>
             <dd>{{ item.a }}</dd>
           </div>
@@ -111,10 +86,11 @@ const faqs = [
       </div>
     </section>
 
-    <!-- CTA -->
     <section class="about-cta">
-      <RouterLink to="/login?register=1" class="m-btn m-btn-primary--green">Create free account</RouterLink>
-      <RouterLink to="/" class="m-btn m-btn-secondary">Back to home</RouterLink>
+      <RouterLink to="/login?register=1" class="m-btn m-btn-primary--green">
+        {{ t('marketing.about.createFreeAccount') }}
+      </RouterLink>
+      <RouterLink to="/" class="m-btn m-btn-secondary">{{ t('marketing.about.backToHome') }}</RouterLink>
     </section>
   </MarketingShell>
 </template>

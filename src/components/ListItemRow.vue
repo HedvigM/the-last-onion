@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { ListItem } from '@/types'
 import type { Category } from '@/types'
 import { useCategoryLabel } from '@/composables/useCategoryLabel'
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const { getCategoryLabel } = useCategoryLabel()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -38,7 +40,7 @@ const { getCategoryLabel } = useCategoryLabel()
           {{ getCategoryLabel(cat) }}
         </option>
       </select>
-      <button type="button" class="btn-icon" aria-label="Delete" @click="emit('delete')">
+      <button type="button" class="btn-icon" :aria-label="t('listItem.deleteAria')" @click="emit('delete')">
         ×
       </button>
     </div>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits<{ add: [name: string] }>()
+const { t } = useI18n()
 
 const name = ref('')
 
@@ -18,12 +20,12 @@ function submit() {
     <input
       v-model="name"
       type="text"
-      placeholder="Add item..."
+      :placeholder="t('listItem.addPlaceholder')"
       autocomplete="off"
       autocorrect="off"
       spellcheck="false"
     />
-    <button type="submit" :disabled="!name.trim()">Add</button>
+    <button type="submit" :disabled="!name.trim()">{{ t('common.add') }}</button>
   </form>
 </template>
 
