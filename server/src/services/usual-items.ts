@@ -62,15 +62,9 @@ export async function addUsualItemsToList(
   householdId: string,
 ) {
   const usualItems = await getUsualCatalogItems(prisma, householdId)
-  const existingItems = await prisma.listItem.findMany({
-    where: { listId },
-    select: { catalogItemId: true },
-  })
-  const existingIds = new Set(existingItems.map((i) => i.catalogItemId))
 
   const added = []
   for (const usual of usualItems) {
-    if (existingIds.has(usual.catalogItem.id)) continue
     const result = await addItemToList(
       prisma,
       listId,
