@@ -63,7 +63,6 @@ const router = createRouter({
       path: '/invite/:token',
       name: 'accept-invite',
       component: () => import('../views/AcceptInviteView.vue'),
-      meta: { requiresAuth: true },
     },
   ],
 })
@@ -79,7 +78,7 @@ router.beforeEach(async (to) => {
     return { name: 'lists' }
   }
 
-  if (hasToken && to.meta.requiresAuth) {
+  if (hasToken && (to.meta.requiresAuth || to.name === 'accept-invite')) {
     const auth = useAuthStore()
     if (!auth.user) {
       await auth.fetchMe()

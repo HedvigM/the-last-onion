@@ -41,7 +41,27 @@ export interface GroceryList {
   householdId: string
   uncheckedCount?: number
   createdAt?: string
+  isShared?: boolean
   items?: ListItem[]
+}
+
+export interface InvitePreview {
+  type: 'household' | 'list'
+  invitedBy: string
+  targetName: string | undefined
+  email: string
+  status: 'valid' | 'expired' | 'accepted'
+  alreadyMember: boolean
+  listId: string | null
+  householdId: string | null
+}
+
+export interface AcceptInviteResult {
+  success: boolean
+  type: 'household' | 'list'
+  listId: string | null
+  householdId: string | null
+  name: string | undefined
 }
 
 export interface UsualItem {

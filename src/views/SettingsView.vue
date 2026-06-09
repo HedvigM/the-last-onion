@@ -78,6 +78,10 @@ async function copyLink() {
       <div v-if="inviteToken" class="invite-box">
         <code>{{ inviteLink() }}</code>
         <button type="button" @click="copyLink">Copy</button>
+        <p class="invite-hint">
+          The recipient must open this link and accept the invite. They can sign in or create a new
+          account when they do.
+        </p>
       </div>
     </section>
 
@@ -224,6 +228,13 @@ form button {
   word-break: break-all;
   font-size: 0.75rem;
   margin-bottom: 0.5rem;
+}
+
+.invite-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
 }
 
 .links {

@@ -54,15 +54,25 @@ export async function listRoutes(app: FastifyInstance) {
         .filter((s) => !householdListIds.has(s.list.id))
         .map((s) => s.list)
 
-      const allLists = [...lists, ...externalShared]
-
-      return allLists.map((l) => ({
+      const householdLists = lists.map((l) => ({
         id: l.id,
         name: l.name,
         householdId: l.householdId,
         uncheckedCount: l._count.items,
         createdAt: l.createdAt.toISOString(),
+        isShared: false,
       }))
+
+      const sharedListResults = externalShared.map((l) => ({
+        id: l.id,
+        name: l.name,
+        householdId: l.householdId,
+        uncheckedCount: l._count.items,
+        createdAt: l.createdAt.toISOString(),
+        isShared: true,
+      }))
+
+      return [...householdLists, ...sharedListResults]
     } catch (error) {
       const { statusCode, message } = handleError(error)
       return reply.status(statusCode).send({ error: message })
@@ -93,11 +103,18 @@ export async function listRoutes(app: FastifyInstance) {
       const list = await prisma.list.findUnique({ where: { id: listId } })
       if (!list) return reply.status(404).send({ error: 'List not found' })
 
+      const isHouseholdMember = await prisma.householdMember.findUnique({
+        where: {
+          householdId_userId: { householdId: list.householdId, userId: request.userId },
+        },
+      })
+
       const items = await getListItems(prisma, listId)
       return {
         id: list.id,
         name: list.name,
         householdId: list.householdId,
+        isShared: !isHouseholdMember,
         items: items.map(formatListItem),
       }
     } catch (error) {

@@ -102,8 +102,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function acceptInvite(token: string) {
-    await api.acceptInvite(token)
+    const result = await api.acceptInvite(token)
     await fetchMe()
+    return result
   }
 
   return {

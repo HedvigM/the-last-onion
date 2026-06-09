@@ -33,7 +33,8 @@ async function submit() {
     } else {
       await auth.login(trimmedEmail, trimmedPassword)
     }
-    router.push('/lists')
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/lists'
+    router.push(redirect)
   } catch {
     /* error shown via store */
   }

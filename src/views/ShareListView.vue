@@ -69,6 +69,10 @@ async function copyLink() {
       <p>Share this link with <strong>{{ email }}</strong>:</p>
       <code class="link">{{ inviteLink() }}</code>
       <button type="button" class="btn-secondary" @click="copyLink">Copy link</button>
+      <p class="invite-hint">
+        The recipient must open this link and accept the invite. They can sign in or create a new
+        account when they do.
+      </p>
     </div>
 
     <hr />
@@ -175,6 +179,13 @@ h2 {
   background: var(--bg);
   border-radius: 4px;
   margin: 0.5rem 0;
+}
+
+.invite-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
 }
 
 hr {

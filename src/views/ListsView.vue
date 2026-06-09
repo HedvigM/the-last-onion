@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
@@ -10,6 +10,9 @@ const router = useRouter()
 
 const newListName = ref('')
 const showCreate = ref(false)
+
+const householdLists = computed(() => listsStore.lists.filter((l) => !l.isShared))
+const sharedLists = computed(() => listsStore.lists.filter((l) => l.isShared))
 
 onMounted(async () => {
   if (auth.activeHousehold) {
@@ -45,16 +48,39 @@ async function createList() {
 
     <div v-if="listsStore.loading" class="loading">Loading lists…</div>
 
-    <ul v-else-if="listsStore.lists.length" class="list-cards">
-      <li v-for="list in listsStore.lists" :key="list.id">
-        <RouterLink :to="`/lists/${list.id}`" class="list-card">
-          <span class="list-name">{{ list.name }}</span>
-          <span class="list-count">{{ list.uncheckedCount ?? 0 }} items</span>
-        </RouterLink>
-      </li>
-    </ul>
+    <template v-else>
+      <section v-if="householdLists.length" class="list-section">
+        <h2 class="section-title">Your lists</h2>
+        <ul class="list-cards">
+          <li v-for="list in householdLists" :key="list.id">
+            <RouterLink :to="`/lists/${list.id}`" class="list-card">
+              <span class="list-name">{{ list.name }}</span>
+              <span class="list-count">{{ list.uncheckedCount ?? 0 }} items</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
 
-    <p v-else class="empty">No lists yet. Create one to start shopping!</p>
+      <section v-if="sharedLists.length" class="list-section">
+        <h2 class="section-title">Shared with you</h2>
+        <p class="section-desc">Lists shared by someone outside your household</p>
+        <ul class="list-cards">
+          <li v-for="list in sharedLists" :key="list.id">
+            <RouterLink :to="`/lists/${list.id}`" class="list-card list-card--shared">
+              <div class="list-card-main">
+                <span class="list-name">{{ list.name }}</span>
+                <span class="shared-badge">Shared</span>
+              </div>
+              <span class="list-count">{{ list.uncheckedCount ?? 0 }} items</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
+
+      <p v-if="!householdLists.length && !sharedLists.length" class="empty">
+        No lists yet. Create one to start shopping!
+      </p>
+    </template>
   </div>
 </template>
 
@@ -117,6 +143,25 @@ h1 {
   cursor: pointer;
 }
 
+.list-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.section-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 0.75rem;
+}
+
 .list-cards {
   list-style: none;
   padding: 0;
@@ -140,8 +185,30 @@ h1 {
   border-color: var(--primary);
 }
 
+.list-card--shared {
+  border-color: var(--primary);
+  border-style: dashed;
+}
+
+.list-card-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .list-name {
   font-weight: 500;
+}
+
+.shared-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
 }
 
 .list-count {

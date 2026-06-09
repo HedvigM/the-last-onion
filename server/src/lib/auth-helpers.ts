@@ -25,6 +25,17 @@ export async function authenticate(request: FastifyRequest) {
   }
 }
 
+export async function optionalAuthenticate(request: FastifyRequest) {
+  const authHeader = request.headers.authorization
+  if (!authHeader?.startsWith('Bearer ')) return
+  try {
+    const payload = await request.jwtVerify<{ userId: string }>()
+    request.userId = payload.userId
+  } catch {
+    /* treat as unauthenticated */
+  }
+}
+
 export function handleError(error: unknown): { statusCode: number; message: string } {
   if (error instanceof AccessError) {
     return { statusCode: error.statusCode, message: error.message }

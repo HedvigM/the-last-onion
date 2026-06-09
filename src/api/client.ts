@@ -96,8 +96,12 @@ export const api = {
     )
   },
 
+  getInvite(token: string) {
+    return request<import('@/types').InvitePreview>(`/invites/${token}`)
+  },
+
   acceptInvite(token: string) {
-    return request<{ success: boolean; type: string }>(`/invites/${token}/accept`, {
+    return request<import('@/types').AcceptInviteResult>(`/invites/${token}/accept`, {
       method: 'POST',
     })
   },

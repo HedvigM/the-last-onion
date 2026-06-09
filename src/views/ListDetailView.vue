@@ -18,6 +18,7 @@ const categoriesStore = useCategoriesStore()
 
 const listId = computed(() => route.params.id as string)
 const addingUsual = ref(false)
+const isSharedList = computed(() => listsStore.currentList?.isShared === true)
 
 useRealtime(toRef(() => listId.value))
 
@@ -67,10 +68,15 @@ async function handleAddUsual() {
   <div class="list-detail">
     <header class="list-header">
       <RouterLink to="/lists" class="back">← Lists</RouterLink>
+      <div v-if="isSharedList" class="shared-banner">
+        Shared list — you're collaborating with another household
+      </div>
       <h1>{{ listsStore.currentList?.name ?? '…' }}</h1>
       <div class="header-actions">
-        <AddUsualButton :loading="addingUsual" @click="handleAddUsual" />
-        <RouterLink :to="`/lists/${listId}/share`" class="btn-share">Share</RouterLink>
+        <AddUsualButton v-if="!isSharedList" :loading="addingUsual" @click="handleAddUsual" />
+        <RouterLink v-if="!isSharedList" :to="`/lists/${listId}/share`" class="btn-share">
+          Share
+        </RouterLink>
       </div>
     </header>
 
@@ -122,6 +128,16 @@ async function handleAddUsual() {
   font-size: 0.875rem;
   color: var(--primary);
   text-decoration: none;
+}
+
+.shared-banner {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+  border: 1px dashed var(--primary);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--primary);
 }
 
 h1 {
