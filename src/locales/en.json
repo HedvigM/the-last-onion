@@ -82,7 +82,7 @@
     "title": "Share \"{name}\"",
     "desc": "Invite someone outside your household to collaborate on this list.",
     "emailAddress": "Email address",
-    "emailPlaceholder": "friend@example.com",
+    "emailPlaceholder": "friend{'@'}example.com",
     "creatingInvite": "Creating invite…",
     "createInviteLink": "Create invite link",
     "shareWith": "Share this link with {email}:",

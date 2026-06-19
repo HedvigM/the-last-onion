@@ -82,7 +82,7 @@
     "title": "Dela \"{name}\"",
     "desc": "Bjud in någon utanför ditt hushåll att samarbeta på den här listan.",
     "emailAddress": "E-postadress",
-    "emailPlaceholder": "van@example.com",
+    "emailPlaceholder": "van{'@'}example.com",
     "creatingInvite": "Skapar inbjudan…",
     "createInviteLink": "Skapa inbjudningslänk",
     "shareWith": "Dela den här länken med {email}:",
