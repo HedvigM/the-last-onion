@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getToken } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
+import { getPendingInvitePath, isSafeRedirect } from '@/composables/usePendingInvite'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,7 +76,18 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.guest && hasToken) {
+    const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : null
+    if (redirect && isSafeRedirect(redirect)) {
+      return redirect
+    }
     return { name: 'lists' }
+  }
+
+  if (hasToken && to.name === 'lists') {
+    const pendingInvitePath = getPendingInvitePath()
+    if (pendingInvitePath) {
+      return pendingInvitePath
+    }
   }
 
   if (hasToken && (to.meta.requiresAuth || to.name === 'accept-invite')) {

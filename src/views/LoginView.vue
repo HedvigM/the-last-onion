@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { api } from '@/api/client'
 import LanguageToggle from '@/components/LanguageToggle.vue'
+import {
+  getPendingInvite,
+  getPendingInvitePath,
+  setPendingInvite,
+  parseInviteTokenFromPath,
+  isSafeRedirect,
+} from '@/composables/usePendingInvite'
+import type { InvitePreview } from '@/types'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -15,6 +24,29 @@ const email = ref('')
 const password = ref('')
 const displayName = ref('')
 const householdName = ref('')
+const invitePreview = ref<InvitePreview | null>(null)
+
+const inviteBanner = computed(() => {
+  if (!invitePreview.value?.targetName) return null
+  if (invitePreview.value.type === 'list') {
+    return t('invite.summaryList', {
+      invitedBy: invitePreview.value.invitedBy,
+      targetName: invitePreview.value.targetName,
+    })
+  }
+  return t('invite.summaryHousehold', {
+    invitedBy: invitePreview.value.invitedBy,
+    targetName: invitePreview.value.targetName,
+  })
+})
+
+function resolvePostAuthRedirect(): string {
+  const queryRedirect =
+    typeof route.query.redirect === 'string' && isSafeRedirect(route.query.redirect)
+      ? route.query.redirect
+      : null
+  return queryRedirect ?? getPendingInvitePath() ?? '/lists'
+}
 
 async function submit() {
   try {
@@ -36,17 +68,43 @@ async function submit() {
     } else {
       await auth.login(trimmedEmail, trimmedPassword)
     }
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/lists'
-    router.push(redirect)
+    router.push(resolvePostAuthRedirect())
   } catch {
     /* error shown via store */
   }
 }
 
-onMounted(() => {
+async function loadInvitePreview() {
+  const token =
+    parseInviteTokenFromPath(
+      typeof route.query.redirect === 'string' ? route.query.redirect : '',
+    ) ?? getPendingInvite()
+  if (!token) return
+
+  try {
+    invitePreview.value = await api.getInvite(token)
+  } catch {
+    invitePreview.value = null
+  }
+}
+
+onMounted(async () => {
   if (route.query.register === '1') {
     isRegister.value = true
   }
+
+  if (typeof route.query.email === 'string') {
+    email.value = route.query.email
+  }
+
+  if (typeof route.query.redirect === 'string') {
+    const token = parseInviteTokenFromPath(route.query.redirect)
+    if (token) {
+      setPendingInvite(token)
+    }
+  }
+
+  await loadInvitePreview()
 })
 </script>
 
@@ -58,6 +116,8 @@ onMounted(() => {
         <LanguageToggle />
       </div>
       <p class="subtitle">{{ t('auth.subtitle') }}</p>
+
+      <p v-if="inviteBanner" class="invite-banner">{{ inviteBanner }}</p>
 
       <form @submit.prevent="submit">
         <div v-if="isRegister" class="field">
@@ -137,6 +197,16 @@ h1 {
 .subtitle {
   color: var(--muted);
   margin: 0 0 1.5rem;
+}
+
+.invite-banner {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
 }
 
 .field {

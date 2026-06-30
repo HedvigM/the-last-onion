@@ -4,6 +4,7 @@ import { api, setToken, getToken } from '@/api/client'
 import { setAppLocale, getStoredLocale, getCurrentLocale } from '@/i18n'
 import { i18n } from '@/i18n'
 import { translateApiError } from '@/composables/useApiError'
+import { clearPendingInvite } from '@/composables/usePendingInvite'
 import type { AppLanguage, User, Household } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -107,6 +108,7 @@ export const useAuthStore = defineStore('auth', () => {
     households.value = []
     activeHouseholdId.value = null
     localStorage.removeItem('activeHouseholdId')
+    clearPendingInvite()
     applyUserLanguage(getStoredLocale() ?? 'en')
   }
 

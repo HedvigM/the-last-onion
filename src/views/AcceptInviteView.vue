@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 import { api } from '@/api/client'
 import { translateApiError } from '@/composables/useApiError'
+import { setPendingInvite, clearPendingInvite } from '@/composables/usePendingInvite'
 import type { InvitePreview } from '@/types'
 
 const auth = useAuthStore()
@@ -41,14 +42,22 @@ const inviteSummary = computed(() => {
   })
 })
 
+const authQuery = computed(() => {
+  const query: Record<string, string> = { redirect: route.fullPath }
+  if (invite.value?.email) {
+    query.email = invite.value.email
+  }
+  return query
+})
+
 const loginUrl = computed(() => ({
   path: '/login',
-  query: { redirect: route.fullPath },
+  query: authQuery.value,
 }))
 
 const registerUrl = computed(() => ({
   path: '/login',
-  query: { redirect: route.fullPath, register: '1' },
+  query: { ...authQuery.value, register: '1' },
 }))
 
 onMounted(async () => {
@@ -60,7 +69,13 @@ async function loadInvite() {
   error.value = null
   try {
     invite.value = await api.getInvite(token.value)
+    if (invite.value.status === 'valid' || invite.value.alreadyMember) {
+      setPendingInvite(token.value)
+    } else {
+      clearPendingInvite()
+    }
   } catch (e) {
+    clearPendingInvite()
     const message = e instanceof Error ? e.message : 'Could not load invite'
     error.value = translateApiError(message, t)
   } finally {
@@ -73,6 +88,7 @@ async function handleAccept() {
   error.value = null
   try {
     const result = await auth.acceptInvite(token.value)
+    clearPendingInvite()
 
     if (result.type === 'list' && result.listId) {
       if (auth.activeHousehold) {
