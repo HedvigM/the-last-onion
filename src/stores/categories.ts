@@ -17,6 +17,15 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
+  async function fetchListCategories(listId: string) {
+    loading.value = true
+    try {
+      categories.value = await api.getListCategories(listId)
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function createCategory(householdId: string, name: string) {
     const cat = await api.createCategory(householdId, name)
     categories.value.push(cat)
@@ -68,6 +77,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     usualItems,
     loading,
     fetchCategories,
+    fetchListCategories,
     createCategory,
     updateCategory,
     deleteCategory,

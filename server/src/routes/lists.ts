@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { requireHouseholdAccess, requireListAccess } from '../lib/access.js'
 import { authenticate, handleError } from '../lib/auth-helpers.js'
+import { formatCategory } from '../lib/categories.js'
 import { emitListEvent } from '../lib/socket.js'
 import {
   addItemToList,
@@ -117,6 +118,22 @@ export async function listRoutes(app: FastifyInstance) {
         isShared: !isHouseholdMember,
         items: items.map(formatListItem),
       }
+    } catch (error) {
+      const { statusCode, message } = handleError(error)
+      return reply.status(statusCode).send({ error: message })
+    }
+  })
+
+  app.get('/lists/:listId/categories', { preHandler: authenticate }, async (request, reply) => {
+    try {
+      const { listId } = request.params as { listId: string }
+      const { householdId } = await requireListAccess(prisma, request.userId, listId)
+
+      const categories = await prisma.category.findMany({
+        where: { householdId },
+        orderBy: { sortOrder: 'asc' },
+      })
+      return categories.map(formatCategory)
     } catch (error) {
       const { statusCode, message } = handleError(error)
       return reply.status(statusCode).send({ error: message })

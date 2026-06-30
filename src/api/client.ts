@@ -175,6 +175,10 @@ export const api = {
     return request<import('@/types').Category[]>(`/households/${householdId}/categories`)
   },
 
+  getListCategories(listId: string) {
+    return request<import('@/types').Category[]>(`/lists/${listId}/categories`)
+  },
+
   createCategory(householdId: string, name: string) {
     return request<import('@/types').Category>(`/households/${householdId}/categories`, {
       method: 'POST',

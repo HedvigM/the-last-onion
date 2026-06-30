@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
 import { useListsStore } from '@/stores/lists'
 import { useCategoriesStore } from '@/stores/categories'
 import { useGroupedItems } from '@/composables/useGroupedItems'
@@ -13,7 +12,6 @@ import AddItemInput from '@/components/AddItemInput.vue'
 import AddUsualButton from '@/components/AddUsualButton.vue'
 
 const route = useRoute()
-const auth = useAuthStore()
 const listsStore = useListsStore()
 const categoriesStore = useCategoriesStore()
 const { t } = useI18n()
@@ -33,11 +31,7 @@ const { uncheckedByCategory, checkedItems } = useGroupedItems(
 
 onMounted(async () => {
   await listsStore.fetchList(listId.value)
-  if (auth.activeHousehold) {
-    await categoriesStore.fetchCategories(auth.activeHousehold.id)
-  } else if (listsStore.currentList?.householdId) {
-    await categoriesStore.fetchCategories(listsStore.currentList.householdId)
-  }
+  await categoriesStore.fetchListCategories(listId.value)
 })
 
 async function handleAdd(name: string) {
