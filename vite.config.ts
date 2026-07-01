@@ -7,13 +7,14 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     vueJsx(),
-    vueDevTools(),
+    ...(mode === 'development' ? [vueDevTools()] : []),
     VitePWA({
       registerType: 'prompt',
+      includeManifestIcons: false,
       includeAssets: ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'The Last Onion',
@@ -46,7 +47,22 @@ export default defineConfig({
       workbox: {
         navigateFallback: 'index.html',
         navigateFallbackAllowlist: [/^\/(?!api).*/],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,webmanifest}'],
+        globIgnores: [
+          '**/icon-source.svg',
+          '**/maskable-icon-source.svg',
+          '**/pwa-512x512.png',
+          '**/maskable-icon.png',
+          '**/assets/*View-*.js',
+          '**/assets/*View-*.css',
+          '**/assets/MarketingShell-*.js',
+          '**/assets/MarketingShell-*.css',
+          '**/assets/LanguageToggle-*.js',
+          '**/assets/LanguageToggle-*.css',
+          '**/assets/useCategoryLabel-*.js',
+          '**/assets/lists-*.js',
+          '**/assets/workbox-window.prod.es5-*.js',
+        ],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => {
@@ -63,13 +79,30 @@ export default defineConfig({
             },
             handler: 'NetworkOnly',
           },
+          {
+            urlPattern: ({ request }) =>
+              request.destination === 'script' || request.destination === 'style',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-assets',
+              expiration: { maxEntries: 60, maxAgeSeconds: 30 * 24 * 60 * 60 },
+            },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: { maxEntries: 20, maxAgeSeconds: 30 * 24 * 60 * 60 },
+            },
+          },
         ],
       },
     }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {
@@ -81,4 +114,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
