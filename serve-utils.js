@@ -1,10 +1,10 @@
 import { existsSync, statSync } from 'node:fs'
-import { join, extname } from 'node:path'
+import { join, extname, resolve, relative, sep } from 'node:path'
 
 export const mime = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
   '.ico': 'image/x-icon',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
@@ -12,15 +12,31 @@ export const mime = {
   '.webmanifest': 'application/manifest+json',
 }
 
+function safeDecode(path) {
+  try {
+    return decodeURIComponent(path)
+  } catch {
+    return path
+  }
+}
+
+function isInsideDir(distRoot, candidate) {
+  const rel = relative(distRoot, candidate)
+  return rel !== '' && !rel.startsWith(`..${sep}`) && rel !== '..' && !rel.startsWith('..')
+}
+
 export function resolvePath(urlPath, distDir) {
-  const relative = decodeURIComponent(urlPath).replace(/^\/+/, '')
-  if (!relative) return join(distDir, 'index.html')
+  const distRoot = resolve(distDir)
+  const relativePath = safeDecode(urlPath).replace(/^\/+/, '')
 
-  const candidate = join(distDir, relative)
-  if (!candidate.startsWith(distDir)) return join(distDir, 'index.html')
-  if (existsSync(candidate) && statSync(candidate).isFile()) return candidate
+  if (!relativePath) return join(distRoot, 'index.html')
 
-  return join(distDir, 'index.html')
+  const candidate = resolve(distRoot, relativePath)
+  if (isInsideDir(distRoot, candidate) && existsSync(candidate) && statSync(candidate).isFile()) {
+    return candidate
+  }
+
+  return join(distRoot, 'index.html')
 }
 
 export function contentType(filePath) {

@@ -1,8 +1,6 @@
-// https://on.cypress.io/api
-
-describe('My First Test', () => {
+describe('Landing page', () => {
   it('visits the app root url', () => {
     cy.visit('/')
-    cy.contains('h1', 'You did it!')
+    cy.contains('h1', 'Shared grocery lists').should('be.visible')
   })
 })

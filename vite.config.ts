@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'prompt',
       includeManifestIcons: false,
-      includeAssets: ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'The Last Onion',
         short_name: 'Onion',
@@ -80,8 +79,10 @@ export default defineConfig(({ mode }) => ({
             handler: 'NetworkOnly',
           },
           {
-            urlPattern: ({ request }) =>
-              request.destination === 'script' || request.destination === 'style',
+            urlPattern: ({ request, url }) =>
+              url.origin === self.location.origin &&
+              url.pathname.startsWith('/assets/') &&
+              (request.destination === 'script' || request.destination === 'style'),
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'static-assets',
@@ -89,7 +90,10 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            urlPattern: ({ request }) => request.destination === 'image',
+            urlPattern: ({ request, url }) =>
+              url.origin === self.location.origin &&
+              request.destination === 'image' &&
+              /\.(?:png|ico|svg|webp)$/i.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: 'images',

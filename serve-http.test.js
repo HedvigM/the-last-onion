@@ -1,10 +1,16 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
+
+if (!existsSync(join(root, 'dist', 'index.html'))) {
+  throw new Error('dist/ not found — run npm run build-only before npm run test:serve')
+}
+
 let server
 let baseUrl
 
@@ -19,7 +25,11 @@ before(async () => {
   server = spawn('node', ['serve.js'], {
     cwd: root,
     env: { ...process.env, PORT: String(port) },
-    stdio: 'pipe',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  server.stderr.on('data', (chunk) => {
+    process.stderr.write(chunk)
   })
 
   for (let attempt = 0; attempt < 50; attempt++) {
@@ -32,11 +42,17 @@ before(async () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
+  server.kill('SIGTERM')
   throw new Error('serve.js did not start in time')
 })
 
-after(() => {
+after(async () => {
+  if (!server) return
   server.kill('SIGTERM')
+  await new Promise((resolve) => {
+    server.on('exit', resolve)
+    setTimeout(resolve, 1000)
+  })
 })
 
 test('direct invite URL returns SPA shell with HTTP 200', async () => {
