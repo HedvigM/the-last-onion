@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createServer } from 'node:http'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -8,23 +8,31 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const dist = join(__dirname, 'dist')
 const port = Number(process.env.PORT ?? 8080)
 
-const mime: Record<string, string> = {
+const mime = {
   '.html': 'text/html',
   '.js': 'application/javascript',
   '.css': 'text/css',
   '.ico': 'image/x-icon',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
+  '.png': 'image/png',
+  '.webmanifest': 'application/manifest+json',
+}
+
+function resolvePath(urlPath) {
+  const relative = decodeURIComponent(urlPath).replace(/^\/+/, '')
+  if (!relative) return join(dist, 'index.html')
+
+  const candidate = join(dist, relative)
+  if (!candidate.startsWith(dist)) return join(dist, 'index.html')
+  if (existsSync(candidate) && statSync(candidate).isFile()) return candidate
+
+  return join(dist, 'index.html')
 }
 
 createServer((req, res) => {
-  let path = req.url?.split('?')[0] ?? '/'
-  if (path === '/') path = '/index.html'
-
-  let filePath = join(dist, path)
-  if (!existsSync(filePath) || !filePath.startsWith(dist)) {
-    filePath = join(dist, 'index.html')
-  }
+  const urlPath = req.url?.split('?')[0] ?? '/'
+  const filePath = resolvePath(urlPath)
 
   try {
     const data = readFileSync(filePath)

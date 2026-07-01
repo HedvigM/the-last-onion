@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getToken } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { getPendingInvitePath, isSafeRedirect } from '@/composables/usePendingInvite'
+import AcceptInviteView from '../views/AcceptInviteView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,7 +64,7 @@ const router = createRouter({
     {
       path: '/invite/:token',
       name: 'accept-invite',
-      component: () => import('../views/AcceptInviteView.vue'),
+      component: AcceptInviteView,
     },
   ],
 })
