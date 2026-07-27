@@ -41,8 +41,12 @@ export const useListsStore = defineStore('lists', () => {
     }
   }
 
-  async function addItem(listId: string, name: string) {
-    const item = await api.addItem(listId, name)
+  async function addItem(
+    listId: string,
+    name: string,
+    options?: { categoryId?: string; quantity?: number | null; unit?: string | null },
+  ) {
+    const item = await api.addItem(listId, name, options)
     if (currentList.value?.id === listId) {
       if (!currentList.value.items) currentList.value.items = []
       const existingIdx = currentList.value.items.findIndex((i) => i.id === item.id)
@@ -63,6 +67,17 @@ export const useListsStore = defineStore('lists', () => {
 
   async function updateItemCategory(listId: string, itemId: string, categoryId: string) {
     const item = await api.updateItem(listId, itemId, { categoryId })
+    patchItem(listId, item)
+    return item
+  }
+
+  async function updateItemQuantity(
+    listId: string,
+    itemId: string,
+    quantity: number | null,
+    unit: string | null,
+  ) {
+    const item = await api.updateItem(listId, itemId, { quantity, unit })
     patchItem(listId, item)
     return item
   }
@@ -123,6 +138,7 @@ export const useListsStore = defineStore('lists', () => {
     addItem,
     toggleItem,
     updateItemCategory,
+    updateItemQuantity,
     deleteItem,
     addUsualItems,
     patchItem,

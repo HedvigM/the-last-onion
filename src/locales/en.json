@@ -60,7 +60,23 @@
   "listItem": {
     "checkedOff": "Checked off",
     "addPlaceholder": "Add item...",
-    "deleteAria": "Delete"
+    "deleteAria": "Delete",
+    "quantityAria": "Quantity",
+    "unitAria": "Unit"
+  },
+  "units": {
+    "none": "—",
+    "st": "pcs",
+    "g": "g",
+    "kg": "kg",
+    "ml": "ml",
+    "dl": "dl",
+    "l": "l",
+    "tsk": "tsp",
+    "msk": "tbsp",
+    "knippe": "bunch",
+    "klyfta": "clove",
+    "forp": "pack"
   },
   "settings": {
     "title": "Settings",

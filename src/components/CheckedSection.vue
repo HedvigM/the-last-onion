@@ -10,6 +10,7 @@ defineProps<{
 const emit = defineEmits<{
   toggle: [itemId: string, checked: boolean]
   delete: [itemId: string]
+  quantityChange: [itemId: string, quantity: number | null, unit: string | null]
 }>()
 
 const { t } = useI18n()
@@ -24,6 +25,7 @@ const { t } = useI18n()
       :item="item"
       @toggle="emit('toggle', item.id, $event)"
       @delete="emit('delete', item.id)"
+      @quantity-change="(q, u) => emit('quantityChange', item.id, q, u)"
     />
   </section>
 </template>

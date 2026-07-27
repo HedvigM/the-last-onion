@@ -11,17 +11,24 @@ import {
   getListItems,
   toggleListItem,
   updateItemCategory,
+  updateItemQuantity,
 } from '../services/items.js'
 import { addUsualItemsToList } from '../services/usual-items.js'
+import { UNITS } from '../lib/units.js'
 
 const createListSchema = z.object({ name: z.string().min(1) })
+const unitSchema = z.enum(UNITS).nullable()
 const addItemSchema = z.object({
   name: z.string().min(1),
   categoryId: z.string().optional(),
+  quantity: z.number().nonnegative().nullable().optional(),
+  unit: unitSchema.optional(),
 })
 const updateItemSchema = z.object({
   checked: z.boolean().optional(),
   categoryId: z.string().optional(),
+  quantity: z.number().nonnegative().nullable().optional(),
+  unit: unitSchema.optional(),
 })
 const inviteSchema = z.object({ email: z.string().email() })
 
@@ -176,7 +183,10 @@ export async function listRoutes(app: FastifyInstance) {
       const { householdId } = await requireListAccess(prisma, request.userId, listId)
       const body = addItemSchema.parse(request.body)
 
-      const result = await addItemToList(prisma, listId, householdId, body.name, body.categoryId)
+      const result = await addItemToList(prisma, listId, householdId, body.name, body.categoryId, {
+        quantity: body.quantity,
+        unit: body.unit,
+      })
       const formatted = formatListItem(result.item)
       emitListEvent(listId, 'item_added', formatted)
       return { ...formatted, action: result.action }
@@ -208,6 +218,15 @@ export async function listRoutes(app: FastifyInstance) {
           where: { id: itemId },
           include: { catalogItem: { include: { category: true } } },
         })
+      }
+
+      if (body.quantity !== undefined || body.unit !== undefined) {
+        item = await updateItemQuantity(
+          prisma,
+          itemId,
+          body.quantity !== undefined ? body.quantity : item.quantity,
+          body.unit !== undefined ? body.unit : item.unit,
+        )
       }
 
       const formatted = formatListItem(item)

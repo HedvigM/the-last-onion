@@ -10,6 +10,7 @@ import CategorySection from '@/components/CategorySection.vue'
 import CheckedSection from '@/components/CheckedSection.vue'
 import AddItemInput from '@/components/AddItemInput.vue'
 import AddUsualButton from '@/components/AddUsualButton.vue'
+import type { PastedItem } from '@/lib/parsePastedItems'
 
 const route = useRoute()
 const listsStore = useListsStore()
@@ -18,6 +19,7 @@ const { t } = useI18n()
 
 const listId = computed(() => route.params.id as string)
 const addingUsual = ref(false)
+const addingItems = ref(false)
 const isSharedList = computed(() => listsStore.currentList?.isShared === true)
 
 useRealtime(toRef(() => listId.value))
@@ -38,6 +40,21 @@ async function handleAdd(name: string) {
   await listsStore.addItem(listId.value, name)
 }
 
+async function handleAddMany(items: PastedItem[]) {
+  addingItems.value = true
+  try {
+    for (const item of items) {
+      const options =
+        item.quantity != null
+          ? { quantity: item.quantity, unit: item.unit }
+          : undefined
+      await listsStore.addItem(listId.value, item.name, options)
+    }
+  } finally {
+    addingItems.value = false
+  }
+}
+
 async function handleToggle(itemId: string, checked: boolean) {
   await listsStore.toggleItem(listId.value, itemId, checked)
 }
@@ -48,6 +65,10 @@ async function handleDelete(itemId: string) {
 
 async function handleCategoryChange(itemId: string, categoryId: string) {
   await listsStore.updateItemCategory(listId.value, itemId, categoryId)
+}
+
+async function handleQuantityChange(itemId: string, quantity: number | null, unit: string | null) {
+  await listsStore.updateItemQuantity(listId.value, itemId, quantity, unit)
 }
 
 async function handleAddUsual() {
@@ -92,6 +113,7 @@ async function handleAddUsual() {
           @toggle="handleToggle"
           @delete="handleDelete"
           @category-change="handleCategoryChange"
+          @quantity-change="handleQuantityChange"
         />
 
         <p v-if="!uncheckedByCategory.length && !checkedItems.length" class="empty">
@@ -102,10 +124,15 @@ async function handleAddUsual() {
           :items="checkedItems"
           @toggle="handleToggle"
           @delete="handleDelete"
+          @quantity-change="handleQuantityChange"
         />
       </div>
 
-      <AddItemInput @add="handleAdd" />
+      <AddItemInput
+        :disabled="addingItems"
+        @add="handleAdd"
+        @add-many="handleAddMany"
+      />
     </template>
   </div>
 </template>

@@ -25,6 +25,8 @@ export interface ListItem {
   listId: string
   checked: boolean
   checkedAt: string | null
+  quantity: number | null
+  unit: string | null
   createdAt: string
   catalogItem: {
     id: string

@@ -1,17 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { parsePastedItems, type PastedItem } from '@/lib/parsePastedItems'
 
-const emit = defineEmits<{ add: [name: string] }>()
+const props = defineProps<{ disabled?: boolean }>()
+const emit = defineEmits<{
+  add: [name: string]
+  addMany: [items: PastedItem[]]
+}>()
 const { t } = useI18n()
 
 const name = ref('')
 
 function submit() {
   const trimmed = name.value.trim()
-  if (!trimmed) return
+  if (!trimmed || props.disabled) return
   emit('add', trimmed)
   name.value = ''
+}
+
+function onPaste(e: ClipboardEvent) {
+  if (props.disabled) {
+    e.preventDefault()
+    return
+  }
+  const text = e.clipboardData?.getData('text') ?? ''
+  const items = parsePastedItems(text)
+  if (items.length === 0) return
+
+  const multiLine = /[\r\n\t]/.test(text) || /[-*•]\s+\[[ xX]?\]/.test(text)
+  const hasQuantity = items.some((i) => i.quantity != null)
+  if (items.length === 1 && !hasQuantity && !multiLine) return
+
+  e.preventDefault()
+  name.value = ''
+  emit('addMany', items)
 }
 </script>
 
@@ -21,11 +44,13 @@ function submit() {
       v-model="name"
       type="text"
       :placeholder="t('listItem.addPlaceholder')"
+      :disabled="disabled"
       autocomplete="off"
       autocorrect="off"
       spellcheck="false"
+      @paste="onPaste"
     />
-    <button type="submit" :disabled="!name.trim()">{{ t('common.add') }}</button>
+    <button type="submit" :disabled="disabled || !name.trim()">{{ t('common.add') }}</button>
   </form>
 </template>
 
@@ -49,6 +74,10 @@ function submit() {
   border-radius: 8px;
   font-size: 16px;
   background: var(--bg);
+}
+
+.add-item input:disabled {
+  opacity: 0.6;
 }
 
 .add-item button {

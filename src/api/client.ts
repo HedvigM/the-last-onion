@@ -138,14 +138,32 @@ export const api = {
     return request<{ success: boolean }>(`/lists/${listId}`, { method: 'DELETE' })
   },
 
-  addItem(listId: string, name: string, categoryId?: string) {
+  addItem(
+    listId: string,
+    name: string,
+    options?: { categoryId?: string; quantity?: number | null; unit?: string | null },
+  ) {
     return request<import('@/types').ListItem & { action?: string }>(`/lists/${listId}/items`, {
       method: 'POST',
-      body: JSON.stringify({ name, categoryId }),
+      body: JSON.stringify({
+        name,
+        categoryId: options?.categoryId,
+        quantity: options?.quantity,
+        unit: options?.unit,
+      }),
     })
   },
 
-  updateItem(listId: string, itemId: string, data: { checked?: boolean; categoryId?: string }) {
+  updateItem(
+    listId: string,
+    itemId: string,
+    data: {
+      checked?: boolean
+      categoryId?: string
+      quantity?: number | null
+      unit?: string | null
+    },
+  ) {
     return request<import('@/types').ListItem>(`/lists/${listId}/items/${itemId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

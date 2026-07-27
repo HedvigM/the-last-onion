@@ -60,7 +60,23 @@
   "listItem": {
     "checkedOff": "Avbockade",
     "addPlaceholder": "Lägg till vara...",
-    "deleteAria": "Ta bort"
+    "deleteAria": "Ta bort",
+    "quantityAria": "Mängd",
+    "unitAria": "Enhet"
+  },
+  "units": {
+    "none": "—",
+    "st": "st",
+    "g": "g",
+    "kg": "kg",
+    "ml": "ml",
+    "dl": "dl",
+    "l": "l",
+    "tsk": "tsk",
+    "msk": "msk",
+    "knippe": "knippe",
+    "klyfta": "klyfta",
+    "forp": "förp"
   },
   "settings": {
     "title": "Inställningar",

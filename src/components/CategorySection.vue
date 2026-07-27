@@ -14,6 +14,7 @@ const emit = defineEmits<{
   toggle: [itemId: string, checked: boolean]
   delete: [itemId: string]
   categoryChange: [itemId: string, categoryId: string]
+  quantityChange: [itemId: string, quantity: number | null, unit: string | null]
 }>()
 
 const { getCategoryLabel } = useCategoryLabel()
@@ -30,6 +31,7 @@ const { getCategoryLabel } = useCategoryLabel()
       @toggle="emit('toggle', item.id, $event)"
       @delete="emit('delete', item.id)"
       @category-change="emit('categoryChange', item.id, $event)"
+      @quantity-change="(q, u) => emit('quantityChange', item.id, q, u)"
     />
   </section>
 </template>

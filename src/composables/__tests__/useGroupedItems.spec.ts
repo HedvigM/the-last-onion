@@ -23,6 +23,8 @@ function makeItem(
     listId: 'list-1',
     checked: overrides.checked,
     checkedAt: overrides.checkedAt ?? null,
+    quantity: overrides.quantity ?? null,
+    unit: overrides.unit ?? null,
     createdAt: overrides.createdAt ?? '2026-01-01T00:00:00Z',
     catalogItem: {
       id: `catalog-${overrides.id}`,
