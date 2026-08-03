@@ -178,6 +178,7 @@
     "internalServerError": "Internt serverfel",
     "requestFailed": "Begäran misslyckades",
     "noInternet": "Ingen internetanslutning",
+    "requestTimedOut": "Begäran tog för lång tid — försök igen",
     "registrationFailed": "Registreringen misslyckades",
     "loginFailed": "Inloggningen misslyckades",
     "failedToSendInvite": "Kunde inte skicka inbjudan",

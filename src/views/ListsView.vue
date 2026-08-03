@@ -15,13 +15,20 @@ const newListName = ref('')
 const showCreate = ref(false)
 const createFormRef = ref<HTMLElement | null>(null)
 const newListBtnRef = ref<HTMLElement | null>(null)
+const sessionLoading = ref(true)
 
 const householdLists = computed(() => listsStore.lists.filter((l) => !l.isShared))
 const sharedLists = computed(() => listsStore.lists.filter((l) => l.isShared))
+const pageLoading = computed(() => sessionLoading.value || listsStore.loading)
 
 onMounted(async () => {
-  if (auth.activeHousehold) {
-    await listsStore.fetchLists(auth.activeHousehold.id)
+  try {
+    await auth.ensureSession()
+    if (auth.activeHousehold) {
+      await listsStore.fetchLists(auth.activeHousehold.id)
+    }
+  } finally {
+    sessionLoading.value = false
   }
 })
 
@@ -74,7 +81,7 @@ async function createList() {
       </button>
     </form>
 
-    <div v-if="listsStore.loading" class="loading">{{ t('lists.loading') }}</div>
+    <div v-if="pageLoading" class="loading">{{ t('lists.loading') }}</div>
 
     <template v-else>
       <section v-if="householdLists.length" class="list-section">

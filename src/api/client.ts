@@ -27,10 +27,21 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers['Content-Type'] = 'application/json'
   }
 
+  const { signal: _ignored, ...rest } = options
   let res: Response
   try {
-    res = await fetch(`${API_BASE}${path}`, { ...options, headers })
+    res = await fetch(`${API_BASE}${path}`, {
+      ...rest,
+      headers,
+      signal: AbortSignal.timeout(12_000),
+    })
   } catch (e) {
+    if (
+      (e instanceof DOMException && (e.name === 'TimeoutError' || e.name === 'AbortError')) ||
+      (e instanceof Error && (e.name === 'TimeoutError' || e.name === 'AbortError'))
+    ) {
+      throw new ApiError('Request timed out', 0)
+    }
     if (e instanceof TypeError) {
       throw new ApiError('No internet connection', 0)
     }
@@ -65,7 +76,11 @@ export const api = {
   },
 
   login(body: { email: string; password: string }) {
-    return request<{ token: string; user: import('@/types').User }>('/auth/login', {
+    return request<{
+      token: string
+      user: import('@/types').User
+      households: import('@/types').Household[]
+    }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(body),
     })

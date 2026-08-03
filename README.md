@@ -77,13 +77,13 @@ npx cypress run --e2e --spec cypress/e2e/grocery.cy.ts
    - `JWT_SECRET` — random secret string
    - `CORS_ORIGIN` — your frontend URL (e.g. `https://the-last-onion-web.osc-fr1.scalingo.io`)
 3. Deploy from the `server/` directory (or set `SCALINGO_APP` / use subdirectory buildpack).
-4. Migrations run automatically via `Procfile` (`db:migrate:deploy` on release).
+4. Migrations run automatically via `postdeploy` (`db:migrate:deploy`).
 
 ### Web app (`the-last-onion-web`)
 
 1. Create a second Scalingo app for the static frontend.
 2. Set `VITE_API_URL` to your API URL **at build time** (Scalingo build env var).
-3. Deploy from project root — `Procfile` runs `npm run build && npm start` (serves `dist/` via `serve.js`).
+3. Deploy from project root — Scalingo runs `npm run build` during slug compile; `Procfile` starts with `npm start` (serves `dist/` via `serve.js`).
 
 ## Project structure
 

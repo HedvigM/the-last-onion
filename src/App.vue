@@ -30,11 +30,8 @@ async function applyUpdate() {
   await updateServiceWorker?.(true)
 }
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener('pwa:need-refresh', onNeedRefresh)
-  if (localStorage.getItem('token')) {
-    await auth.fetchMe()
-  }
 })
 
 onUnmounted(() => {

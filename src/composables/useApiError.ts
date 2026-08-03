@@ -12,6 +12,7 @@ const ERROR_KEY_MAP: Record<string, string> = {
   'Internal server error': 'errors.internalServerError',
   'Request failed': 'errors.requestFailed',
   'No internet connection': 'errors.noInternet',
+  'Request timed out': 'errors.requestTimedOut',
   'Registration failed': 'errors.registrationFailed',
   'Login failed': 'errors.loginFailed',
   'Failed to send invite': 'errors.failedToSendInvite',

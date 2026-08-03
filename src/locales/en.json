@@ -178,6 +178,7 @@
     "internalServerError": "Internal server error",
     "requestFailed": "Request failed",
     "noInternet": "No internet connection",
+    "requestTimedOut": "Request timed out — try again",
     "registrationFailed": "Registration failed",
     "loginFailed": "Login failed",
     "failedToSendInvite": "Failed to send invite",

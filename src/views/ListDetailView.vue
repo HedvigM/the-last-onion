@@ -32,8 +32,10 @@ const { uncheckedByCategory, checkedItems } = useGroupedItems(
 )
 
 onMounted(async () => {
-  await listsStore.fetchList(listId.value)
-  await categoriesStore.fetchListCategories(listId.value)
+  await Promise.all([
+    listsStore.fetchList(listId.value),
+    categoriesStore.fetchListCategories(listId.value),
+  ])
 })
 
 async function handleAdd(name: string) {

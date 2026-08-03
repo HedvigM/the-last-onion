@@ -16,6 +16,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <title>The Last Onion</title>
+    <style>
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: #f8f9fa;
+      }
+      #app {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      #app:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #app:empty::before {
+        content: "The Last Onion";
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d6a4f;
+        letter-spacing: 0.01em;
+      }
+      @media (prefers-color-scheme: dark) {
+        html, body {
+          background: #1a1d21;
+        }
+        #app:empty::before {
+          color: #40916c;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

@@ -13,6 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
   const activeHouseholdId = ref<string | null>(localStorage.getItem('activeHouseholdId'))
   const loading = ref(false)
   const error = ref<string | null>(null)
+  let fetchMeInFlight: Promise<void> | null = null
 
   const isAuthenticated = computed(() => !!user.value)
   const activeHousehold = computed(
@@ -32,6 +33,15 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = translateApiError(message, (key) => i18n.global.t(key))
   }
 
+  function applySession(nextUser: User, nextHouseholds: Household[]) {
+    user.value = nextUser
+    households.value = nextHouseholds
+    applyUserLanguage(nextUser.language)
+    if (nextHouseholds.length && !activeHouseholdId.value) {
+      setActiveHousehold(nextHouseholds[0]!.id)
+    }
+  }
+
   async function register(data: {
     email: string
     password: string
@@ -47,10 +57,8 @@ export const useAuthStore = defineStore('auth', () => {
         language: data.language ?? getCurrentLocale(),
       })
       setToken(res.token)
-      user.value = res.user
-      households.value = [res.household]
+      applySession(res.user, [res.household])
       setActiveHousehold(res.household.id)
-      applyUserLanguage(res.user.language)
       return res
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Registration failed')
@@ -66,9 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await api.login({ email, password })
       setToken(res.token)
-      user.value = res.user
-      applyUserLanguage(res.user.language)
-      await fetchMe()
+      applySession(res.user, res.households)
       return res
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Login failed')
@@ -80,20 +86,29 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchMe() {
     if (!getToken()) return
+    if (fetchMeInFlight) return fetchMeInFlight
+
     loading.value = true
-    try {
-      const res = await api.me()
-      user.value = res.user
-      households.value = res.households
-      applyUserLanguage(res.user.language)
-      if (households.value.length && !activeHouseholdId.value) {
-        setActiveHousehold(households.value[0]!.id)
+    fetchMeInFlight = (async () => {
+      try {
+        const res = await api.me()
+        applySession(res.user, res.households)
+      } catch {
+        logout()
+      } finally {
+        loading.value = false
+        fetchMeInFlight = null
       }
-    } catch {
-      logout()
-    } finally {
-      loading.value = false
-    }
+    })()
+
+    return fetchMeInFlight
+  }
+
+  /** Restore session if a token exists; resolves when user is loaded or auth cleared. */
+  async function ensureSession() {
+    if (user.value) return
+    if (!getToken()) return
+    await fetchMe()
   }
 
   async function updateLanguage(language: AppLanguage) {
@@ -103,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    fetchMeInFlight = null
     setToken(null)
     user.value = null
     households.value = []
@@ -130,6 +146,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     login,
     fetchMe,
+    ensureSession,
     updateLanguage,
     logout,
     acceptInvite,

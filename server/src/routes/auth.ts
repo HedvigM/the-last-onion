@@ -94,10 +94,20 @@ export async function authRoutes(app: FastifyInstance) {
         return reply.status(401).send({ error: 'Invalid credentials' })
       }
 
+      const memberships = await prisma.householdMember.findMany({
+        where: { userId: user.id },
+        include: { household: true },
+      })
+
       const token = app.jwt.sign({ userId: user.id })
       return {
         token,
         user: formatUser(user),
+        households: memberships.map((m) => ({
+          id: m.household.id,
+          name: m.household.name,
+          role: m.role,
+        })),
       }
     } catch (error) {
       const { statusCode, message } = handleError(error)

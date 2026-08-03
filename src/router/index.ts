@@ -96,6 +96,10 @@ router.beforeEach(async (to) => {
     if (!auth.user) {
       await auth.fetchMe()
     }
+    // Invalid/expired token: fetchMe clears the session — send them to login
+    if (to.meta.requiresAuth && !auth.user) {
+      return { name: 'login', query: { redirect: to.fullPath } }
+    }
   }
 })
 
