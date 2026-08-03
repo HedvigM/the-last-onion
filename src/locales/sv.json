@@ -60,6 +60,9 @@
   "listItem": {
     "checkedOff": "Avbockade",
     "addPlaceholder": "Lägg till vara...",
+    "pastedCount": "{n} inklistrad vara | {n} inklistrade varor",
+    "pastedHint": "Tryck på Lägg till för att lägga dem i listan.",
+    "clearPasted": "Rensa",
     "deleteAria": "Ta bort",
     "quantityAria": "Mängd",
     "unitAria": "Enhet"

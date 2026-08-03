@@ -60,6 +60,9 @@
   "listItem": {
     "checkedOff": "Checked off",
     "addPlaceholder": "Add item...",
+    "pastedCount": "{n} pasted item | {n} pasted items",
+    "pastedHint": "Tap Add to put them on your list.",
+    "clearPasted": "Clear",
     "deleteAria": "Delete",
     "quantityAria": "Quantity",
     "unitAria": "Unit"

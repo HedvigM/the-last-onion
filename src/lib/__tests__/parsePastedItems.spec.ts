@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parsePastedItems, parseQuantityLine } from '../parsePastedItems'
+import { parseLeadingQuantity, parsePastedItems, parseQuantityLine } from '../parsePastedItems'
 
 describe('parseQuantityLine', () => {
   it('parses common Swedish amounts', () => {
@@ -18,7 +18,67 @@ describe('parseQuantityLine', () => {
   })
 })
 
+describe('parseLeadingQuantity', () => {
+  it('splits amounts written before the ingredient', () => {
+    expect(parseLeadingQuantity('5 dl Vetemjöl')).toEqual({
+      name: 'Vetemjöl',
+      quantity: 5,
+      unit: 'dl',
+    })
+    expect(parseLeadingQuantity('0,5 tsk Salt')).toEqual({
+      name: 'Salt',
+      quantity: 0.5,
+      unit: 'tsk',
+    })
+    expect(parseLeadingQuantity('50g Smör')).toEqual({ name: 'Smör', quantity: 50, unit: 'g' })
+    expect(parseLeadingQuantity('½ dl grädde')).toEqual({
+      name: 'grädde',
+      quantity: 0.5,
+      unit: 'dl',
+    })
+  })
+
+  it('keeps unrecognized words as part of the name', () => {
+    expect(parseLeadingQuantity('1 stor gul lök')).toEqual({
+      name: 'stor gul lök',
+      quantity: 1,
+      unit: null,
+    })
+  })
+
+  it('returns null for lines that are only an amount', () => {
+    expect(parseLeadingQuantity('2 dl')).toBeNull()
+    expect(parseLeadingQuantity('270g')).toBeNull()
+    expect(parseLeadingQuantity('Svart ris')).toBeNull()
+  })
+})
+
 describe('parsePastedItems', () => {
+  it('reads recipe lines with the amount in front of the name', () => {
+    const text = [
+      '5 dl Vetemjöl',
+      '2 dl Mjölk',
+      '50 g Smör',
+      '2 tsk Bakpulver',
+      '0,5 tsk Salt',
+    ].join('\n')
+
+    expect(parsePastedItems(text)).toEqual([
+      { name: 'Vetemjöl', quantity: 5, unit: 'dl' },
+      { name: 'Mjölk', quantity: 2, unit: 'dl' },
+      { name: 'Smör', quantity: 50, unit: 'g' },
+      { name: 'Bakpulver', quantity: 2, unit: 'tsk' },
+      { name: 'Salt', quantity: 0.5, unit: 'tsk' },
+    ])
+  })
+
+  it('keeps a leading count that has no unit', () => {
+    expect(parsePastedItems('2 ägg\n1 dl te')).toEqual([
+      { name: 'ägg', quantity: 2, unit: null },
+      { name: 'te', quantity: 1, unit: 'dl' },
+    ])
+  })
+
   it('pairs Notion-style ingredient and amount lines', () => {
     const text = [
       'Svart ris',
