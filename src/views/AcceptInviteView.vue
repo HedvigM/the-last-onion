@@ -252,8 +252,8 @@ h1 {
 }
 
 .warning {
-  background: #fff3cd;
-  color: #664d03;
+  background: var(--warning-bg);
+  color: var(--warning-text);
   padding: 0.75rem;
   border-radius: 8px;
   font-size: 0.875rem;

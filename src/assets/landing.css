@@ -283,6 +283,9 @@
     --m-cream: #1a1d21;
     --m-green-50: #1a2e24;
     --m-green-100: #243830;
+    --m-green-dark: #95d5b2;
+    --m-green-mid: #52b788;
+    --m-green-light: #95d5b2;
     --m-border-strong: #3a4a42;
   }
 
@@ -290,8 +293,24 @@
     background: #0f1f18;
   }
 
+  /* White CTA must keep dark ink — --m-green-dark is lightened for text on cream */
+  .marketing .m-btn-primary {
+    background: #fff;
+    color: #1b4332;
+  }
+
+  .marketing .m-btn-primary--green {
+    background: #40916c;
+    color: #fff;
+  }
+
+  .marketing .tag {
+    color: var(--m-green-light);
+  }
+
   .marketing .m-card {
     background: var(--surface);
+    border-color: var(--m-border-strong);
   }
 }
 

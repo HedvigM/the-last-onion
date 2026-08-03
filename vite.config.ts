@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         short_name: 'Onion',
         description: 'Shared grocery lists for households',
         theme_color: '#2d6a4f',
-        background_color: '#f7f4ed',
+        background_color: '#1a1d21',
         display: 'standalone',
         start_url: '/',
         scope: '/',

@@ -207,6 +207,13 @@ const features = computed(() => [
   right: 1.5rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  .doodle {
+    color: var(--m-green-light, #95d5b2);
+    opacity: 0.9;
+  }
+}
+
 .hero-copy {
   background: var(--m-cream, #f7f4ed);
   padding: 2.5rem 1.5rem;
@@ -254,19 +261,19 @@ const features = computed(() => [
 
 .about-card {
   padding: 1.75rem;
-  background: #f7f4ed;
-  color: #1b4332;
+  background: var(--m-cream, #f7f4ed);
+  color: var(--m-green-dark, #1b4332);
 }
 
 .about-card h2 {
   margin: 0 0 0.75rem;
   font-size: 1.375rem;
-  color: #1b4332;
+  color: var(--m-green-dark, #1b4332);
 }
 
 .card-rule {
   border: none;
-  border-top: 1.5px solid #1b4332;
+  border-top: 1.5px solid var(--m-green-dark, #1b4332);
   margin: 0 0 1rem;
   opacity: 0.2;
 }
@@ -275,7 +282,8 @@ const features = computed(() => [
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.65;
-  color: #2f3d36;
+  color: var(--m-green-dark, #1b4332);
+  opacity: 0.85;
 }
 
 .features-section {

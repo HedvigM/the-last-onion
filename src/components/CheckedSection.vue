@@ -37,7 +37,7 @@ const { t } = useI18n()
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  border-bottom: 2px solid var(--secondary);
+  border-bottom: 2px solid var(--border);
   padding: 0.75rem 1rem 0.25rem;
   margin: 0;
 }

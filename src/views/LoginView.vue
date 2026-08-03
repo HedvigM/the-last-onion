@@ -179,7 +179,7 @@ onMounted(async () => {
   background: var(--surface);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .auth-header {
@@ -200,8 +200,8 @@ h1 {
 }
 
 .invite-banner {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-bg);
+  color: var(--success-text);
   padding: 0.75rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -226,6 +226,8 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
   box-sizing: border-box;
 }
 

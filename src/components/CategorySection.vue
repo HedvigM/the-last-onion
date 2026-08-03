@@ -42,7 +42,7 @@ const { getCategoryLabel } = useCategoryLabel()
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text);
+  color: var(--secondary-text);
   padding: 0.75rem 1rem 0.25rem;
   margin: 0;
   background: var(--secondary);
